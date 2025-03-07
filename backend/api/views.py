@@ -4,12 +4,37 @@ from rest_framework import generics
 from .serializers import UserSerializer, RoleSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Role
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.response import Response
+from rest_framework import status
+from django.contrib.auth import get_user_model
 
 #create your views here
 class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
+
+#API d’authentification qui retourne le rôle de l'utilisateur.
+
+User = get_user_model()
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        
+        if response.status_code == 200:
+            username = request.data.get("username")
+            try:
+                user = User.objects.get(username=username)
+                response.data["role"] = user.role
+                response.data["user_id"] = user.id  # Optionnel pour le frontend
+            except User.DoesNotExist:
+                return Response(
+                    {"error": "Utilisateur non trouvé"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        return response
 
 
 # Liste et création des rôles

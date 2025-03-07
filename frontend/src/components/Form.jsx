@@ -11,6 +11,7 @@ function Form({ route, method }) {
 
     const name = method === "login" ? "Login" : "Register";
 
+
     const handleSubmit = async (e) => {
         setLoading(true);
         e.preventDefault();
@@ -20,9 +21,23 @@ function Form({ route, method }) {
             if (method === "login") {
                 localStorage.setItem(ACCESS_TOKEN, res.data.access);
                 localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
-                navigate("/");
+                localStorage.setItem('USER_ROLE', res.data.role); // Stocker le rôle
+                
+                // Redirection basée sur le rôle
+                switch(res.data.role) {
+                    case 'admin':
+                        //navigate('/');
+                        navigate('/admin-dashboard');
+                        break;
+                    case 'professor':
+                        navigate('/professor-dashboard');
+                        break;
+                    case 'student':
+                    default:
+                        navigate('/student-dashboard');
+                }
             } else {
-                navigate("/login");
+                navigate('/login');
             }
         } catch (error) {
             alert(error);
