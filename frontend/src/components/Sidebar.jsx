@@ -18,7 +18,7 @@ function Sidebar() {
           </Link>
         </li>
         <li>
-          <Link to="/utilisateurs" className="block py-2 hover:bg-blue-700 px-4 rounded">
+          <Link to="/api/users" className="block py-2 hover:bg-blue-700 px-4 rounded">
             Utilisateurs
           </Link>
         </li>

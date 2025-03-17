@@ -5,6 +5,7 @@ import Navbar from './components/Navbar';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Role from './pages/Role';
+import UserList from './pages/UserList';
 import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/ProtectedRoute';
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "./constants";
@@ -88,7 +89,14 @@ function App() {
             <Route path="/register" element={<RegisterAndLogout />} />
             <Route path="/api/roles" element={<ProtectedRoute><Role /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
-          
+            <Route
+              path="/api/users"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <UserList />
+                </ProtectedRoute>
+              }
+           />
             <Route
               path="/admin-dashboard"
               element={
