@@ -32,13 +32,17 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
-REST_FRAMEWORK = {
+""" REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
+} """
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [],  # Désactive l'authentification globale
+    'DEFAULT_PERMISSION_CLASSES': [],     # Désactive les permissions globales
 }
 
 SIMPLE_JWT = {
@@ -97,9 +101,13 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+      'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'projetdb', 
+        'USER': 'etudiant',  
+        'PASSWORD': 'passer123',  
+        'HOST': 'localhost', 
+        'PORT': '3306',  
     }
 }
 

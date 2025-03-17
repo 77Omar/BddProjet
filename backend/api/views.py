@@ -1,9 +1,9 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
-from rest_framework import generics
-from .serializers import UserSerializer, RoleSerializer
+from rest_framework import generics, viewsets
+from .serializers import CorrectionModelSerializer, EtudiantSerializer, ExerciseSerializer, ProfesseurSerializer, ReponseSerializer, SujetSerializer, UserSerializer, RoleSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import Role
+from .models import CorrectionModel, Etudiant, Exercise, Professeur, Reponse, Role, Sujet
 
 #create your views here
 class CreateUserView(generics.CreateAPIView):
@@ -47,5 +47,34 @@ class RoleDelete(generics.DestroyAPIView):
     def perform_destroy(self, instance):
         instance.delete()
 
+"""
 
+"""
+class RoleViewSet(viewsets.ModelViewSet):
+    queryset = Role.objects.all()
+    serializer_class = RoleSerializer
+    
+class EtudiantViewSet(viewsets.ModelViewSet):
+    queryset = Etudiant.objects.all()
+    serializer_class = EtudiantSerializer
+
+class ProfesseurViewSet(viewsets.ModelViewSet):
+    queryset = Professeur.objects.all()
+    serializer_class = ProfesseurSerializer
+
+class SujetViewSet(viewsets.ModelViewSet):
+    queryset = Sujet.objects.all()
+    serializer_class = SujetSerializer
+
+class ExerciseViewSet(viewsets.ModelViewSet):
+    queryset = Exercise.objects.all()
+    serializer_class = ExerciseSerializer
+
+class CorrectionModelViewSet(viewsets.ModelViewSet):
+    queryset = CorrectionModel.objects.all()
+    serializer_class = CorrectionModelSerializer
+
+class ReponseViewSet(viewsets.ModelViewSet):
+    queryset = Reponse.objects.all()
+    serializer_class = ReponseSerializer
     
