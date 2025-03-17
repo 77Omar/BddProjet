@@ -1,0 +1,43 @@
+# Python
+*.pyc
+__pycache__/
+
+
+# IDEs et éditeurs
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Fichiers temporaires
+*~
+*.bak
+*.swp
+
+# Environnements virtuels
+venv/
+env/
+
+# Dépendances Node.js
+node_modules/
+
+# Systèmes d'exploitation
+.DS_Store
+Thumbs.db
+
+# Fichiers de compilation
+*.o
+*.a
+*.so
+*.exe
+
+# Fichiers de déploiement
+.docker/
+.kubernetes/
+
+# Base de données SQLite
+*.sqlite3
+
+# Dossiers temporaires
+backend/uploads/
