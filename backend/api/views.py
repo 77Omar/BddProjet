@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Role
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status,viewsets, permissions
 from django.contrib.auth import get_user_model
 
 #create your views here
@@ -14,6 +14,17 @@ class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+    permission_classes = [AllowAny]
+    
+    def perform_create(self, serializer):
+        user = serializer.save()
+        user.set_password(self.request.data.get('password'))
+        user.save()    
 
 #API d’authentification qui retourne le rôle de l'utilisateur.
 
