@@ -12,7 +12,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'username',
-            'password',  # Ajouter le champ password
+            'password',  
             'email',
             'first_name',
             'last_name', 
