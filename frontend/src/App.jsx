@@ -5,13 +5,17 @@ import Navbar from './components/Navbar';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
-import Role from './pages/Role';
 import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/ProtectedRoute';
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "./constants";
 import { jwtDecode } from "jwt-decode";
 import api from "./api";
-
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import UsersPage from './pages/UsersPage';
+import ExercicePage from './pages/ExercicePage';
+import ListExoPage from './pages/ListExoPage';
+import ReponsePage from './pages/ReponsePage';
 function Logout() {
   localStorage.clear();
   return <Navigate to="/login" />;
@@ -33,7 +37,7 @@ function App() {
   const refreshToken = async () => {
     const refreshToken = localStorage.getItem(REFRESH_TOKEN);
     try {
-      const res = await api.post("/api/token/refresh/", { refresh: refreshToken });
+      const res = await api.post("api/auth/refresh/", { refresh: refreshToken });
       if (res.status === 200) {
         localStorage.setItem(ACCESS_TOKEN, res.data.access);
         setIsAuthenticated(true); // Mettre à jour l'état pour afficher la bonne vue
@@ -91,10 +95,14 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route path="/login" element={<Login />} />
-            <Route path="/logout" element={<Logout />} />
-            <Route path="/register" element={<RegisterAndLogout />} />
-            <Route path="/api/roles" element={<ProtectedRoute><Role /></ProtectedRoute>} />
+             <Route path="/login" element={<LoginPage />} />
+             <Route path="/register" element={<RegisterPage />} />
+             <Route path="/dashboard" element={<Dashboard />} />
+             <Route path="/utilisateurs" element={<UsersPage />} />
+             <Route path="/exercices" element={<ExercicePage />} />
+
+             <Route path="/listExercices" element={<ListExoPage />} />
+             <Route path="/reponse" element={<ReponsePage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>

@@ -40,3 +40,13 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Transition smooth pour la sidebar */
+.sidebar-transition {
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Empêche le scrolling quand la sidebar mobile est ouverte */
+body.sidebar-open {
+  overflow: hidden;
+}

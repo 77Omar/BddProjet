@@ -1,80 +1,96 @@
-from django.shortcuts import render
-from django.contrib.auth.models import User
-from rest_framework import generics, viewsets
-from .serializers import CorrectionModelSerializer, EtudiantSerializer, ExerciseSerializer, ProfesseurSerializer, ReponseSerializer, SujetSerializer, UserSerializer, RoleSerializer
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import CorrectionModel, Etudiant, Exercise, Professeur, Reponse, Role, Sujet
+from rest_framework import viewsets, permissions
+from .serializers import CorrectionSerializer, UserSerializer, ExerciceSerializer
+from .models import User, Exercice, Correction
+from django.contrib.auth import get_user_model
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from rest_framework import status
+from rest_framework_simplejwt.tokens import RefreshToken
+from .serializers import RegisterSerializer, UserSerializer
+from rest_framework.views import APIView
 
-#create your views here
-class CreateUserView(generics.CreateAPIView):
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
+
+from django.http import FileResponse
+from .models import Exercice
+
+User = get_user_model()
+
+def get_tokens_for_user(user):
+    refresh = RefreshToken.for_user(user)
+    return {'refresh': str(refresh), 'access': str(refresh.access_token)}
+
+"""
+
+"""
+@api_view(['POST', 'OPTIONS'])
+@permission_classes([AllowAny])
+def register_view(request):
+    if request.method == 'OPTIONS':
+        return Response(status=200)
+    
+    serializer = RegisterSerializer(data=request.data)
+    if serializer.is_valid():
+        user = serializer.save()
+        token = get_tokens_for_user(user)
+        return Response({
+            'token': token, 
+            'user': UserSerializer(user).data
+        }, status=status.HTTP_201_CREATED)
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+"""
+
+"""
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def logout_view(request):
+    try:
+        refresh_token = request.data["refresh"]
+        token = RefreshToken(refresh_token)
+        token.blacklist()  # Invalide le token
+
+        return Response({"message": "Déconnexion réussie"}, status=200)
+    except Exception as e:
+        return Response({"error": "Token invalide"}, status=400)
+
+"""
+
+"""
+class UserViewSet(viewsets.ReadOnlyModelViewSet):  # ReadOnly pour la sécurité
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [AllowAny]
+    #permission_classes = [permissions.IsAdminUser]  # Seul l'admin peut voir tous les users
 
 
-# Liste et création des rôles
-class RoleListCreate(generics.ListCreateAPIView):
-    serializer_class = RoleSerializer
+"""
+"""
+class CurrentUserView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get_queryset(self):
-        # Filtrer selon les rôles de l'utilisateur (si nécessaire)
-        return Role.objects.all()
+    def get(self, request):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
+"""
+"""
+class ExerciceViewSet(viewsets.ModelViewSet):
+    queryset = Exercice.objects.all()
+    serializer_class = ExerciceSerializer
+    #permission_classes = [permissions.IsAuthenticated]  # Accessible à tout user connecté
 
-    def perform_create(self, serializer):
-        if serializer.is_valid():
-            serializer.save()
-        else:
-            print(serializer.errors)
-
-# Mise à jour d'un rôle
-class RoleUpdate(generics.UpdateAPIView):
-    serializer_class = RoleSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        return Role.objects.all()
-
-# Suppression d'un rôle
-class RoleDelete(generics.DestroyAPIView):
-    serializer_class = RoleSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        # Filtrer pour ne permettre que la suppression de rôles spécifiques si nécessaire
-        return Role.objects.all()
-
-    def perform_destroy(self, instance):
-        instance.delete()
-
+"""
+"""
+class CorrectionViewSet(viewsets.ModelViewSet):
+    queryset = Correction.objects.all()
+    serializer_class = CorrectionSerializer
+    #permission_classes = [permissions.IsAuthenticated]  # Accessible à tout user connecté
 """
 
 """
-class RoleViewSet(viewsets.ModelViewSet):
-    queryset = Role.objects.all()
-    serializer_class = RoleSerializer
-    
-class EtudiantViewSet(viewsets.ModelViewSet):
-    queryset = Etudiant.objects.all()
-    serializer_class = EtudiantSerializer
-
-class ProfesseurViewSet(viewsets.ModelViewSet):
-    queryset = Professeur.objects.all()
-    serializer_class = ProfesseurSerializer
-
-class SujetViewSet(viewsets.ModelViewSet):
-    queryset = Sujet.objects.all()
-    serializer_class = SujetSerializer
-
-class ExerciseViewSet(viewsets.ModelViewSet):
-    queryset = Exercise.objects.all()
-    serializer_class = ExerciseSerializer
-
-class CorrectionModelViewSet(viewsets.ModelViewSet):
-    queryset = CorrectionModel.objects.all()
-    serializer_class = CorrectionModelSerializer
-
-class ReponseViewSet(viewsets.ModelViewSet):
-    queryset = Reponse.objects.all()
-    serializer_class = ReponseSerializer
-    
+class FichierExerciceView(APIView):
+    def get(self, request, pk):
+        exercice = Exercice.objects.get(pk=pk)
+        return FileResponse(open(exercice.fichier.path, 'rb'))
