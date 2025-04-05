@@ -13,12 +13,13 @@ from .views import (
     register_view,
     logout_view,
     ExerciceViewSet,
+    soumettre_reponse,
     # Vos autres ViewSets...
 )
 
 router = DefaultRouter()
 router.register(r'exercises', ExerciceViewSet)
-router.register(r'correction', CorrectionViewSet)
+router.register(r'notes', CorrectionViewSet)
 router.register(r'users', UserViewSet)
 
 auth_patterns = [
@@ -31,6 +32,8 @@ auth_patterns = [
 ]
 
 urlpatterns = [
+    path('correction/', soumettre_reponse, name='correction'),
+
     path('api/exercices/<int:pk>/fichier/', FichierExerciceView.as_view()),
     path('api/auth/', include(auth_patterns)),
     path('api/', include(router.urls)),

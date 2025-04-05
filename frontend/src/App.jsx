@@ -16,6 +16,9 @@ import UsersPage from './pages/UsersPage';
 import ExercicePage from './pages/ExercicePage';
 import ListExoPage from './pages/ListExoPage';
 import ReponsePage from './pages/ReponsePage';
+import MesNotesPage from './pages/MesNotesPage';
+import MaPerformencePage  from './pages/MaPerformencePage';
+import EtudiantPage  from './pages/EtudiantPage';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -106,6 +109,9 @@ function App() {
 
              <Route path="/listExercices" element={<ListExoPage />} />
              <Route path="/exercices/:id/reponse" element={<ReponsePage />} />
+             <Route path="/mes_notes" element={<MesNotesPage />} />
+             <Route path="/ma_performence" element={<MaPerformencePage />} />
+             <Route path="/mes_etudiant" element={<EtudiantPage />} />
 
             <Route path="*" element={<NotFound />} /></Routes>
              <ToastContainer />

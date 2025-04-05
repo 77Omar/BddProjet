@@ -21,8 +21,10 @@ const Sidebar = ({ onClose }) => {
     { path: "/dashboard", name: "Dashboard", icon: "📊" },
     { path: "/utilisateurs", name: "Utilisateurs", icon: "👥" },
     { path: "/listExercices", name: "Exercices", icon: "📝" },
-    { path: "/reponse", name: "Reponse", icon: "✅" },
-    { path: "/statistiques", name: "Statistiques", icon: "📈" }
+    { path: "/mes_notes", name: "Mes Notes", icon: "✅" },
+    { path: "/ma_performence", name: "Ma performence", icon: "📈" },
+    { path: "/mes_etudiant", name: "Mes Etudiant", icon: "👥" },
+    { path: "/ma_performence", name: "Ma performence", icon: "📈" },
   ];
 
   return (

@@ -1,3 +1,4 @@
+from venv import logger
 from rest_framework import viewsets, permissions
 from .serializers import CorrectionSerializer, UserSerializer, ExerciceSerializer
 from .models import User, Exercice, Correction
@@ -8,11 +9,11 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import RegisterSerializer, UserSerializer
 from rest_framework.views import APIView
-
+from .ai import corriger_exercice
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.permissions import AllowAny
-
+import fitz  # PyMuPDF
 from django.http import FileResponse
 from .models import Exercice
 
@@ -94,3 +95,95 @@ class FichierExerciceView(APIView):
     def get(self, request, pk):
         exercice = Exercice.objects.get(pk=pk)
         return FileResponse(open(exercice.fichier.path, 'rb'))
+    
+"""
+
+"""
+
+def extraire_texte_pdf(fichier_pdf):
+    """
+    Prend un fichier PDF (InMemoryUploadedFile) et retourne le texte extrait.
+    """
+    texte = ""
+    with fitz.open(stream=fichier_pdf.read(), filetype="pdf") as doc:
+        for page in doc:
+            texte += page.get_text("text")
+    return texte.strip()
+
+"""
+"""
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def soumettre_reponse(request):
+    """
+    Soumet une réponse PDF et déclenche la correction automatique.
+    Données attendues:
+    - exercice: ID de l'exercice (obligatoire)
+    - etudiant: ID de l'étudiant (optionnel, normalement déduit du token)
+    - fichier_reponse: Fichier PDF à corriger (obligatoire)
+    """
+    try:
+        # 1. Validation des données entrantes
+        exercice_id = request.data.get('exercice')
+        if not exercice_id:
+            return Response({'message': 'Le champ "exercice" est obligatoire'}, 
+                          status=status.HTTP_400_BAD_REQUEST)
+
+        fichier_reponse = request.FILES.get('fichier_reponse')
+        if not fichier_reponse:
+            return Response({'message': 'Aucun fichier réponse fourni'}, 
+                          status=status.HTTP_400_BAD_REQUEST)
+
+        # 2. Vérification du type de fichier
+        if not fichier_reponse.name.lower().endswith('.pdf'):
+            return Response({'message': 'Le fichier doit être au format PDF'}, 
+                          status=status.HTTP_400_BAD_REQUEST)
+
+        # 3. Récupération de l'exercice
+        try:
+            exercice = Exercice.objects.get(id=exercice_id)
+        except Exercice.DoesNotExist:
+            return Response({'message': 'Exercice non trouvé'}, 
+                          status=status.HTTP_404_NOT_FOUND)
+
+        # 4. Extraction du texte des PDF
+        try:
+            texte_reponse = extraire_texte_pdf(fichier_reponse)
+            texte_exercice = extraire_texte_pdf(exercice.fichier)
+        except Exception as e:
+            return Response({'message': f'Erreur lors de la lecture des PDF: {str(e)}'}, 
+                          status=status.HTTP_400_BAD_REQUEST)
+
+        # 5. Correction automatique
+        try:
+            note, feedback = corriger_exercice(
+                texte_reponse=texte_reponse,
+                texte_exercice=texte_exercice
+            )
+        except Exception as e:
+            return Response({'message': f'Erreur lors de la correction: {str(e)}'}, 
+                          status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        # 6. Création de la correction
+        correction = Correction.objects.create(
+            exercice=exercice,
+            etudiant=request.user,  # On utilise l'user du token plutôt que celui envoyé
+            fichier_reponse=fichier_reponse,
+            auto_note=note,
+            feedback_ia=feedback,
+            note=note,  # Note initiale = note auto, modifiable par le prof ensuite
+        )
+
+        # 7. Retour de la réponse
+        return Response(
+            CorrectionSerializer(correction).data,
+            status=status.HTTP_201_CREATED
+        )
+
+    except Exception as e:
+        # Journalisation de l'erreur
+        logger.error(f"Erreur inattendue dans soumettre_reponse: {str(e)}")
+        return Response(
+            {'message': 'Une erreur interne est survenue'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )

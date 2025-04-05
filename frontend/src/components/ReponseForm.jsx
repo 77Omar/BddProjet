@@ -56,7 +56,7 @@ const ReponseForm = () => {
       formDataToSend.append('fichier_reponse', formData.fichier);
 
       await createCorrection(formDataToSend);
-      toast.success('Exercice créé avec succès !', {
+      toast.success('Reponse enregistrer avec succès !', {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -64,7 +64,7 @@ const ReponseForm = () => {
         pauseOnHover: true,
         draggable: true,
       });
-      navigate('/listExercices');
+      navigate('/mes_notes');
     } catch (err) {
       setError(err.response?.data?.message || "Erreur lors de l'envoi de la réponse");
     } finally {

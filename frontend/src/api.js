@@ -49,6 +49,16 @@ export const getExercices = async () => {
   }
 };
 
+export const getCorrection = async () => {
+  try {
+    const response = await api.get("/api/notes/");
+    return response.data;
+  } catch (error) {
+    console.error("Erreur lors de la récupération des corrections:", error);
+    throw error;
+  }
+};
+
 export const createExercice = async (formData) => {
   try {
     const response = await api.post("/api/exercises/", formData, {

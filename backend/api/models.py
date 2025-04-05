@@ -32,3 +32,8 @@ class Correction(models.Model):
     fichier_reponse = models.FileField(upload_to='reponses/')
     note = models.FloatField(default=0)
     feedback = models.TextField(blank=True, null=True)
+    auto_note = models.FloatField(default=0)  # Note initiale attribuée par l'IA
+    feedback_ia = models.TextField(blank=True, null=True)  # Commentaires de l'IA
+
+    def __str__(self):
+        return f"Correction de {self.etudiant.username} pour {self.exercice.titre}"

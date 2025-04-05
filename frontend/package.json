@@ -11,9 +11,12 @@
     "tailwind": "tailwindcss -i ./src/index.css -o ./dist/output.css --watch"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.1",
     "axios": "^1.8.1",
+    "chart.js": "^4.4.8",
     "jwt-decode": "^4.0.0",
     "react": "^19.0.0",
+    "react-chartjs-2": "^5.3.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.2.0",
     "react-toastify": "^11.0.5"
