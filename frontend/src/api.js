@@ -63,6 +63,22 @@ export const createExercice = async (formData) => {
   }
 };
 
+export const createCorrection = async (formData) => {
+  try {
+    const response = await api.post("/api/correction/", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Erreur lors de la création de l'exercice:", error);
+    throw error;
+  }
+};
+
+
+
 export const getCurrentUser = async () => {
   try {
     const response = await api.get("/api/auth/me/");

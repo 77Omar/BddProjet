@@ -26,9 +26,22 @@ const ListeExercice = () => {
     exercice.titre.toLowerCase().includes(searchTerm.toLowerCase()) ||
     exercice.professeur.toLowerCase().includes(searchTerm.toLowerCase())
   )
+   /*  const filtExos = exercices.filter(exercice => {
+      const searchLower = searchTerm.toLowerCase();
+      const titreMatch = exercice.titre.toLowerCase().includes(searchLower);
+      
+      // Gère à la fois les objets et les IDs
+      const profMatch = exercice.professeur 
+        ? (exercice.professeur.username || '').toLowerCase().includes(searchLower)
+        : false;
+        
+      return titreMatch || profMatch;
+    }); */
 
   const handleViewFile = async (exerciceId) => {
-    window.open(`http://localhost:8000/api/exercices/${exerciceId}/fichier/`, '_blank');
+    const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+
+    window.open(`${API_BASE_URL}/api/exercices/${exerciceId}/fichier/`, '_blank');
   };
 
   return (
@@ -111,12 +124,12 @@ const ListeExercice = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex space-x-2">
-                          <Link
-                            to={`/exercices/${exercice.id}/repondre`}
-                            className="text-blue-600 hover:text-blue-900"
-                          >
-                            Répondre
-                          </Link>
+                        <Link 
+                        to={`/exercices/${exercice.id}/reponse`} 
+                        className="text-blue-600 hover:text-blue-900"
+                        >
+                        Répondre
+                        </Link>
 
                           <Link
                             to={`/exercices/${exercice.id}/edit`}

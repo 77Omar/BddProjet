@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import Layout from './Layout'
 import { createExercice, getCurrentUser } from '../api'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ExerciceForm = () => {
   const navigate = useNavigate()
@@ -51,10 +53,18 @@ const ExerciceForm = () => {
       const formDataToSend = new FormData()
       formDataToSend.append('titre', formData.titre)
       formDataToSend.append('fichier', formData.fichier)
-      formDataToSend.append('professeur', currentUser.id)
+      formDataToSend.append('professeur_id', currentUser.id)
 
       await createExercice(formDataToSend)
-      navigate('/exercices')
+      toast.success('Reponse enregistrer avec succès !', {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+      navigate('/listExercices')
     } catch (err) {
       setError(err.response?.data?.message || "Erreur lors de l'enregistrement")
     } finally {

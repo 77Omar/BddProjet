@@ -1,101 +1,92 @@
-import React, { useState, useEffect } from 'react'
-import Layout from './Layout'
-import { createExercice, getCurrentUser } from '../api'
-import { useNavigate } from 'react-router-dom'
+import React, { useState, useEffect } from 'react';
+import Layout from './Layout';
+import { createCorrection, getCurrentUser } from '../api'; // Nouvelle API pour Correction
+import { useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ReponseForm = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const { id } = useParams(); // ID de l'exercice
   const [formData, setFormData] = useState({
-    titre: '',
     fichier: null,
-    professeur: ''
-  })
-  const [currentUser, setCurrentUser] = useState(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState('')
+  });
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const loadUser = async () => {
       try {
-        const user = await getCurrentUser()
-        setCurrentUser(user) // Correction ici (parentheses au lieu de =)
-        setFormData(prev => ({ ...prev, professeur: user.id }))
+        const user = await getCurrentUser();
+        setCurrentUser(user);
       } catch (error) {
-        console.error("Erreur de chargement de l'utilisateur:", error)
-        navigate('/login')
+        console.error("Erreur de chargement de l'utilisateur:", error);
+        navigate('/login');
       }
-    }
-    loadUser()
-  }, [navigate])
+    };
+    loadUser();
+  }, [navigate]);
 
   const handleChange = (e) => {
-    const { name, value, files } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: files ? files[0] : value
-    }))
-  }
+    const { files } = e.target;
+    setFormData({ fichier: files ? files[0] : null });
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    
+    e.preventDefault();
+
     if (!currentUser) {
-      setError("Vous devez être connecté pour créer un exercice")
-      return
+      setError("Vous devez être connecté pour soumettre une réponse");
+      return;
     }
 
-    setIsSubmitting(true)
-    setError('')
+    if (!formData.fichier) {
+      setError("Veuillez ajouter un fichier PDF");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError('');
 
     try {
-      const formDataToSend = new FormData()
-      formDataToSend.append('titre', formData.titre)
-      formDataToSend.append('fichier', formData.fichier)
-      formDataToSend.append('professeur', currentUser.id)
+      const formDataToSend = new FormData();
+      formDataToSend.append('exercice', id); // ID de l'exercice
+      formDataToSend.append('etudiant', currentUser.id);
+      formDataToSend.append('fichier_reponse', formData.fichier);
 
-      await createExercice(formDataToSend)
-      navigate('/exercices')
+      await createCorrection(formDataToSend);
+      toast.success('Exercice créé avec succès !', {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+      navigate('/listExercices');
     } catch (err) {
-      setError(err.response?.data?.message || "Erreur lors de l'enregistrement")
+      setError(err.response?.data?.message || "Erreur lors de l'envoi de la réponse");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <Layout>
       <div className="space-y-6">
-        {/* Header Card */}
         <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/30 p-6">
-          <h1 className="text-2xl font-bold text-gray-800">Nouvel Exercice</h1>
+          <h1 className="text-2xl font-bold text-gray-800">Soumettre une réponse</h1>
+          <p className="text-sm text-gray-500">Exercice ID: {id}</p>
           {currentUser && (
             <p className="text-sm text-gray-500 mt-1">
-              Créé par : {currentUser.username} ({currentUser.role})
+              Étudiant : {currentUser.username}
             </p>
           )}
-          {error && (
-            <div className="mt-2 p-2 bg-red-100 text-red-700 rounded-md">
-              {error}
-            </div>
-          )}
+          {error && <div className="mt-2 p-2 bg-red-100 text-red-700 rounded-md">{error}</div>}
         </div>
 
-        {/* Formulaire */}
         <form onSubmit={handleSubmit} className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/30 p-6 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Titre de l'exercice *
-            </label>
-            <input
-              type="text"
-              name="titre"
-              value={formData.titre}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              required
-            />
-          </div>
-
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Fichier PDF *
@@ -138,13 +129,13 @@ const ReponseForm = () => {
               disabled={isSubmitting}
               className={`px-4 py-2 rounded-lg text-white ${isSubmitting ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'} transition-colors`}
             >
-              {isSubmitting ? 'Enregistrement...' : 'Enregistrer'}
+              {isSubmitting ? 'Envoi en cours...' : 'Soumettre'}
             </button>
           </div>
         </form>
       </div>
     </Layout>
-  )
-}
+  );
+};
 
-export default ReponseForm
+export default ReponseForm;

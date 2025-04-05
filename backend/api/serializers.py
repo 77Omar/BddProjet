@@ -32,12 +32,26 @@ class RegisterSerializer(serializers.ModelSerializer):
             role=validated_data['role']
         )
         return user
-
 class ExerciceSerializer(serializers.ModelSerializer):
+    # Pour la lecture (GET)
+    professeur = UserSerializer(read_only=True)
+    
+    # Pour l'écriture (POST/PUT/PATCH)
+    professeur_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        source='professeur',
+        write_only=True
+    )
+
+    class Meta:
+        model = Exercice
+        fields = ['id', 'titre', 'fichier', 'date_creation', 'professeur', 'professeur_id']
+
+""" class ExerciceSerializer(serializers.ModelSerializer):
     professeur=UserSerializer()
     class Meta:
         model = Exercice
-        fields = '__all__'
+        fields = '__all__' """
 
 class CorrectionSerializer(serializers.ModelSerializer):
     class Meta:

@@ -16,6 +16,9 @@ import UsersPage from './pages/UsersPage';
 import ExercicePage from './pages/ExercicePage';
 import ListExoPage from './pages/ListExoPage';
 import ReponsePage from './pages/ReponsePage';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 function Logout() {
   localStorage.clear();
   return <Navigate to="/login" />;
@@ -102,9 +105,10 @@ function App() {
              <Route path="/exercices" element={<ExercicePage />} />
 
              <Route path="/listExercices" element={<ListExoPage />} />
-             <Route path="/reponse" element={<ReponsePage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+             <Route path="/exercices/:id/reponse" element={<ReponsePage />} />
+
+            <Route path="*" element={<NotFound />} /></Routes>
+             <ToastContainer />
         </div>
       </div>
     </div>
