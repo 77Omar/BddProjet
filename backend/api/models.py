@@ -8,7 +8,6 @@ class User(AbstractUser):
     github_id = models.CharField(max_length=255, blank=True, null=True)
     microsoft_id = models.CharField(max_length=255, blank=True, null=True)
     
-    # Ajoutez ces deux blocs juste après les champs existants
     groups = models.ManyToManyField(
         'auth.Group',
         related_name='custom_user_groups',
@@ -30,8 +29,8 @@ class Correction(models.Model):
     exercice = models.ForeignKey(Exercice, on_delete=models.CASCADE)
     etudiant = models.ForeignKey(User, on_delete=models.CASCADE)
     fichier_reponse = models.FileField(upload_to='reponses/')
-    note = models.FloatField(default=0)
-    feedback = models.TextField(blank=True, null=True)
+    note = models.FloatField(default=0) # note du prof
+    feedback = models.TextField(blank=True, null=True) # commentaire du prof
     auto_note = models.FloatField(default=0)  # Note initiale attribuée par l'IA
     feedback_ia = models.TextField(blank=True, null=True)  # Commentaires de l'IA
 

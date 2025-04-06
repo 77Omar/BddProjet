@@ -1,44 +1,82 @@
 import re
 import ollama
 
+def extraire_note_feedback(output):
+    # Regex plus permissive pour la note
+    note_match = re.search(
+        r'note\s*[:=-]\s*(\d+(?:\.\d+)?)\s*/\s*20', 
+        output, 
+        re.IGNORECASE
+    )
+    
+    # Regex améliorée pour le feedback
+    feedback_match = re.search(
+        r'feedback\s*[:=-]\s*(.+?)(?=(?:\n\s*[A-Z]+[:=-]|$))', 
+        output, 
+        re.IGNORECASE | re.DOTALL
+    )
+    
+    note = float(note_match.group(1)) if note_match else 0.0
+    feedback = feedback_match.group(1).strip() if feedback_match else "Aucun feedback généré."
+    
+    if not note_match:
+        feedback = "Aucun feedback généré.\n⚠️ Format de note incorrect dans la réponse de l'IA."
+    
+    return note, feedback
+
 def corriger_exercice(texte_reponse, texte_exercice):
     prompt = f"""
-Tu es un professeur de bases de données.
+Tu es un professeur de base de données.
 
-Voici l'énoncé de l'exercice :
+Voici l'exercice donné :
 {texte_exercice}
 
 Voici la réponse de l'étudiant :
 {texte_reponse}
 
-Corrige cette réponse.
+Corrige cette réponse, attribue une NOTE sur 20, puis donne un feedback clair. 
 
-Ta réponse doit OBLIGATOIREMENT suivre exactement ce format :
+Réponds STRICTEMENT dans ce format :
 
 NOTE: X/20  
 FEEDBACK: ton commentaire ici...
 
-Remplace X par une note décimale entre 0 et 20 (exemple : 14.5/20). N'écris RIEN d'autre. Pas de phrases avant ou après. Juste le format demandé.
+Exemple :  
+NOTE: 14.5/20  
+FEEDBACK: La structure générale est bonne, mais certaines requêtes SQL sont mal formulées. Par exemple...
+
+Attention, ne mets RIEN d’autre que ce format.
 """
 
+
     try:
-        # Appel à l'IA
         response = ollama.chat("deepseek-coder", messages=[{"role": "user", "content": prompt}])
-        output = response["message"]["content"]
+        output = response["message"]["content"].strip()
 
-        # Extraction de la note
-        match = re.search(r'NOTE:\s*(\d+(?:\.\d+)?)/20', output)
-        note = float(match.group(1)) if match else 0.0
+        print("🧠 Réponse brute de l'IA :", output)
 
-        # Extraction du feedback
-        feedback_match = re.search(r'FEEDBACK:\s*(.+)', output, re.DOTALL)
-        feedback = feedback_match.group(1).strip() if feedback_match else "Aucun feedback généré."
+        note, feedback = extraire_note_feedback(output)
 
-        # Si la note n’a pas été trouvée, ajouter une indication
-        if note == 0.0 and not match:
-            feedback += "\n L'IA n'a pas fourni de note correctement formatée (NOTE: x/20)."
+        # 🔁 Retry une fois si la note n'a pas été trouvée
+        if note == 0.0:
+            retry_prompt = f"""
+Corrige ce devoir :
+
+ENONCÉ : {texte_exercice}
+
+RÉPONSE : {texte_reponse}
+
+Donne UNIQUEMENT :
+NOTE: x/20  
+FEEDBACK: ton feedback ici...
+Aucun mot en dehors de ce format.
+"""
+            retry_response = ollama.chat("deepseek-coder", messages=[{"role": "user", "content": retry_prompt}])
+            retry_output = retry_response["message"]["content"].strip()
+            print("🔁 Deuxième tentative de l'IA :", retry_output)
+            note, feedback = extraire_note_feedback(retry_output)
 
         return note, feedback
 
     except Exception as e:
-        return 0.0, f"Erreur IA : {str(e)}"
+        return 0.0, f"❌ Erreur IA : {str(e)}"

@@ -64,7 +64,7 @@ def logout_view(request):
 class UserViewSet(viewsets.ReadOnlyModelViewSet):  # ReadOnly pour la sécurité
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    #permission_classes = [permissions.IsAdminUser]  # Seul l'admin peut voir tous les users
+    #permission_classes = [permissions.IsAdminUser] 
 
 
 """
@@ -80,14 +80,13 @@ class CurrentUserView(APIView):
 class ExerciceViewSet(viewsets.ModelViewSet):
     queryset = Exercice.objects.all()
     serializer_class = ExerciceSerializer
-    #permission_classes = [permissions.IsAuthenticated]  # Accessible à tout user connecté
-
+    #permission_classes = [permissions.IsAuthenticated]  
 """
 """
 class CorrectionViewSet(viewsets.ModelViewSet):
     queryset = Correction.objects.all()
     serializer_class = CorrectionSerializer
-    #permission_classes = [permissions.IsAuthenticated]  # Accessible à tout user connecté
+    #permission_classes = [permissions.IsAuthenticated] 
 """
 
 """
@@ -102,7 +101,7 @@ class FichierExerciceView(APIView):
 
 def extraire_texte_pdf(fichier_pdf):
     """
-    Prend un fichier PDF (InMemoryUploadedFile) et retourne le texte extrait.
+    Prend un fichier PDF  et retourne le texte extrait.
     """
     texte = ""
     with fitz.open(stream=fichier_pdf.read(), filetype="pdf") as doc:
@@ -134,10 +133,12 @@ def soumettre_reponse(request):
             return Response({'message': 'Aucun fichier réponse fourni'}, 
                           status=status.HTTP_400_BAD_REQUEST)
 
+
         # 2. Vérification du type de fichier
         if not fichier_reponse.name.lower().endswith('.pdf'):
             return Response({'message': 'Le fichier doit être au format PDF'}, 
                           status=status.HTTP_400_BAD_REQUEST)
+
 
         # 3. Récupération de l'exercice
         try:
@@ -146,6 +147,7 @@ def soumettre_reponse(request):
             return Response({'message': 'Exercice non trouvé'}, 
                           status=status.HTTP_404_NOT_FOUND)
 
+
         # 4. Extraction du texte des PDF
         try:
             texte_reponse = extraire_texte_pdf(fichier_reponse)
@@ -153,6 +155,7 @@ def soumettre_reponse(request):
         except Exception as e:
             return Response({'message': f'Erreur lors de la lecture des PDF: {str(e)}'}, 
                           status=status.HTTP_400_BAD_REQUEST)
+
 
         # 5. Correction automatique
         try:

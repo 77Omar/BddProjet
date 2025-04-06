@@ -14,7 +14,7 @@ from .views import (
     logout_view,
     ExerciceViewSet,
     soumettre_reponse,
-    # Vos autres ViewSets...
+
 )
 
 router = DefaultRouter()

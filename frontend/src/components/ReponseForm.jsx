@@ -64,7 +64,7 @@ const ReponseForm = () => {
         pauseOnHover: true,
         draggable: true,
       });
-      navigate('/mes_notes');
+      navigate(`/etudiants/${currentUser.id}/notes`);
     } catch (err) {
       setError(err.response?.data?.message || "Erreur lors de l'envoi de la réponse");
     } finally {
@@ -119,7 +119,7 @@ const ReponseForm = () => {
           <div className="flex justify-end space-x-3 pt-4">
             <button
               type="button"
-              onClick={() => navigate('/exercices')}
+              onClick={() => navigate('/listExercices')}
               className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
             >
               Annuler

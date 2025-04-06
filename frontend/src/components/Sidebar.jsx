@@ -48,7 +48,9 @@ const Sidebar = ({ onClose }) => {
         ...baseMenuItems,
         { path: `/etudiants/${currentUser.id}/notes`, name: "Mes Notes", icon: "✅" },
         { path: `/etudiants/${currentUser.id}/performances`, name: "Mes Performances", icon: "📈" },
-        { path: "/mes_etudiant", name: "Mes Étudiants", icon: "👥" },
+        { path: "/mes_etudiant", name: "Mes Étudiants", icon: "👨‍🎓" },
+        { path: "/performances_des_etudiants", name: "Performance de la classe", icon: "📈" },
+
       ]
     : baseMenuItems;
 
