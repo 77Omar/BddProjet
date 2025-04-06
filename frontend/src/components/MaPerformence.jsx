@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Layout from '../components/Layout'
 import { getCorrection } from '../api';
 import { Bar, Line } from 'react-chartjs-2';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -30,7 +31,7 @@ const MaPerformence = () => {
   const [corrections, setCorrections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('bar');
-
+  const { id } = useParams();
   useEffect(() => {
     const loadData = async () => {
       try {

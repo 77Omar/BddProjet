@@ -112,6 +112,8 @@ function App() {
              <Route path="/mes_notes" element={<MesNotesPage />} />
              <Route path="/ma_performence" element={<MaPerformencePage />} />
              <Route path="/mes_etudiant" element={<EtudiantPage />} />
+             <Route path="/etudiants/:id/notes" element={<MesNotesPage />} />
+             <Route path="/etudiants/:id/performances" element={<MaPerformencePage />} />
 
             <Route path="*" element={<NotFound />} /></Routes>
              <ToastContainer />

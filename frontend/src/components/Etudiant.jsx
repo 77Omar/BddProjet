@@ -94,26 +94,21 @@ const Etudiant = () => {
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex space-x-4">
-                          <Link
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex gap-2">
+                            <Link
                             to={`/etudiants/${user.id}/notes`}
-                            className="text-blue-600 hover:text-blue-800 hover:underline"
-                          >
+                            className="px-3 py-1.5 text-sm bg-blue-50 text-blue-600 rounded-lg border border-blue-200 hover:bg-blue-100 hover:border-blue-300 transition-colors shadow-sm"
+                            >
                             Notes
-                          </Link>
-                          <Link
+                            </Link>
+                            <Link
                             to={`/etudiants/${user.id}/performances`}
-                            className="text-green-600 hover:text-green-800 hover:underline"
-                          >
+                            className="px-3 py-1.5 text-sm bg-green-50 text-green-600 rounded-lg border border-green-200 hover:bg-green-100 hover:border-green-300 transition-colors shadow-sm"
+                            >
                             Performances
-                          </Link>
-                          <Link
-                            to={`/etudiants/${user.id}/editer`}
-                            className="text-gray-600 hover:text-gray-800 hover:underline"
-                          >
-                            Éditer
-                          </Link>
+                            </Link>
+                            
                         </div>
                       </td>
                     </tr>

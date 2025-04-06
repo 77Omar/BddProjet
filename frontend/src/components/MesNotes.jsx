@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Dialog } from '@headlessui/react';
 import { getCorrection } from '../api';
 import Layout from '../components/Layout';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const MesNotes = () => {
   const [corrections, setCorrections] = useState([]);
   const [selectedFeedback, setSelectedFeedback] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-
+ const { id } = useParams();
   useEffect(() => {
     const loadExercices = async () => {
       try {
