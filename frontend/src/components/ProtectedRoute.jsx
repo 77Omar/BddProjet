@@ -14,7 +14,8 @@ function ProtectedRoute({ children, requiredRole }) {
     
     const refreshToken = async () => {
         try {
-            const res = await api.post("/api/token/refresh/", { 
+            const res = await api.post("/api/token/refresh/", {
+
                 refresh: localStorage.getItem(REFRESH_TOKEN) 
             });
             
