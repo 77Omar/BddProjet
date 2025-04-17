@@ -1,105 +1,49 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import Sidebar from './components/Sidebar';
-import Navbar from './components/Navbar';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
-import Role from './pages/Role';
-import NotFound from './pages/NotFound';
-import ProtectedRoute from './components/ProtectedRoute';
-import { ACCESS_TOKEN, REFRESH_TOKEN } from "./constants";
-import { jwtDecode } from "jwt-decode";
-import api from "./api";
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-function Logout() {
-  localStorage.clear();
-  return <Navigate to="/login" />;
-}
+// Import des composants depuis le dossier components/etudiant
+import Navbar from './components/etudiant/Navbar';
+import Sidebar from './components/etudiant/Sidebar';
+import Footer from './components/etudiant/Footer';
 
-function RegisterAndLogout() {
-  localStorage.clear();
-  return <Register />;
-}
+// Import des pages depuis le dossier pages/etudiant
+import Dashboard from './pages/etudiant/Dashboard';
+import Sujets from './pages/etudiant/Sujets';
+import Soumettre from './pages/etudiant/Soumettre';
+import Corrections from './pages/etudiant/Corrections';
+import Notes from './pages/etudiant/Notes';
+import MonProfil from './pages/etudiant/MonProfil';
+import MotDePasse from './pages/etudiant/MotDePasse';
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(null);
-  const location = useLocation();
-
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const refreshToken = async () => {
-    const refreshToken = localStorage.getItem(REFRESH_TOKEN);
-    try {
-      const res = await api.post("/api/token/refresh/", { refresh: refreshToken });
-      if (res.status === 200) {
-        localStorage.setItem(ACCESS_TOKEN, res.data.access);
-        setIsAuthenticated(true); // Mettre à jour l'état pour afficher la bonne vue
-      } else {
-        setIsAuthenticated(false); // Si l'authentification échoue, déconnecter l'utilisateur
-      }
-    } catch (error) {
-      console.log(error);
-      setIsAuthenticated(false);
-    }
-  };
-
-  const checkAuth = async () => {
-    const token = localStorage.getItem(ACCESS_TOKEN);
-    if (!token) {
-      setIsAuthenticated(false); // Utilisateur non authentifié
-      return;
-    }
-    const decoded = jwtDecode(token);
-    const tokenExpiration = decoded.exp;
-    const now = Date.now() / 1000;
-
-    if (tokenExpiration < now) {
-      await refreshToken(); // Si le token est expiré, rafraîchir
-    } else {
-      setIsAuthenticated(true); // Si le token est valide, rester authentifié
-    }
-  };
-
-  useEffect(() => {
-    // Vérifier l'authentification à chaque changement de location
-    checkAuth();
-  }, [location]);
-
-  if (isAuthenticated === null) {
-    return <div>Loading...</div>;
-  }
-
-  const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex">
-      {/* Afficher Sidebar et Navbar uniquement si l'utilisateur est authentifié et n'est pas sur la page de login ou register */}
-      {!isAuthPage && isAuthenticated && <Sidebar />}
-      <div className="flex-1">
-        {/* Afficher Navbar uniquement si l'utilisateur est authentifié et n'est pas sur la page de login ou register */}
-        {!isAuthPage && isAuthenticated && <Navbar />}
-        <div className="p-4">
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="/login" element={<Login />} />
-            <Route path="/logout" element={<Logout />} />
-            <Route path="/register" element={<RegisterAndLogout />} />
-            <Route path="/api/roles" element={<ProtectedRoute><Role /></ProtectedRoute>} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+    <Router>
+      <div className="flex h-screen overflow-hidden">
+        {/* Sidebar */}
+        <Sidebar isOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+
+        {/* Contenu principal */}
+        <div className="flex flex-col flex-1 w-full">
+          <Navbar toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+
+          <main className="flex-1 overflow-y-auto bg-gray-100 p-4">
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/sujets" element={<Sujets />} />
+              <Route path="/soumettre" element={<Soumettre />} />
+              <Route path="/corrections" element={<Corrections />} />
+              <Route path="/notes" element={<Notes />} />
+              <Route path="/profil" element={<MonProfil />} />
+              <Route path="/motdepasse" element={<MotDePasse />} />
+            </Routes>
+          </main>
+
+          <Footer />
         </div>
       </div>
-    </div>
+    </Router>
   );
 }
 
