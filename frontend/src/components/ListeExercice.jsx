@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import { Link } from 'react-router-dom';
-import { getExercices } from "../api";
+import { getExercices,getCurrentUser } from "../api";
 
 const ListeExercice = () => {
   const [exercices, setExercices] = useState([]);
@@ -9,6 +9,7 @@ const ListeExercice = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const [currentUser, setCurrentUser] = useState(null)
 
   useEffect(() => {
     const loadExercices = async () => {
@@ -21,6 +22,18 @@ const ListeExercice = () => {
         setLoading(false);
       }
     };
+     const loadUser = async () => {
+          try {
+            const user = await getCurrentUser()
+            setCurrentUser(user) 
+            setFormData(prev => ({ ...prev, professeur: user.id }))
+          } catch (error) {
+            console.error("Erreur de chargement de l'utilisateur:", error)
+            navigate('/login')
+          }
+        }
+        loadUser()
+
     loadExercices();
   }, []);
 
@@ -42,7 +55,7 @@ const ListeExercice = () => {
 
   const confirmDelete = (id) => {
     if (window.confirm("Êtes-vous sûr de vouloir supprimer cet exercice ?")) {
-      // Ajoutez ici la logique de suppression
+      //  la logique de suppression
       console.log("Suppression de l'exercice", id);
     }
   };
@@ -72,12 +85,14 @@ const ListeExercice = () => {
                 🔍
               </span>
             </div>
+            {currentUser?.role === 'prof' && (
             <Link
               to="/exercices"
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-center whitespace-nowrap flex items-center justify-center"
             >
               <span className="mr-1">+</span> Nouvel Exercice
             </Link>
+            )}
           </div>
         </div>
 
@@ -141,24 +156,28 @@ const ListeExercice = () => {
                         </td>
                         <td className="px-6 py-4 text-sm font-medium">
                           <div className="flex space-x-4">
+                          {currentUser?.role === 'etudiant' && (
                             <Link 
                               to={`/exercices/${exercice.id}/reponse`} 
                               className="text-blue-600 hover:text-blue-800 hover:underline"
                             >
                               Répondre
-                            </Link>
+                            </Link> )}
+                            {(currentUser?.id === exercice.professeur.id) && (
                             <Link
                               to={`/exercices/${exercice.id}/edit`}
                               className="text-green-600 hover:text-green-800 hover:underline"
                             >
                               Éditer
-                            </Link>
+                            </Link> )}
+                            {(currentUser?.id === exercice.professeur.id) && (
                             <button
                               className="text-red-600 hover:text-red-800 hover:underline"
                               onClick={() => confirmDelete(exercice.id)}
                             >
                               Supprimer
-                            </button>
+                            </button> )}
+                         
                           </div>
                         </td>
                       </tr>
@@ -167,7 +186,7 @@ const ListeExercice = () => {
                 </table>
               </div>
 
-              {/* Pagination améliorée */}
+              {/* Pagination  */}
               {totalPages > 1 && (
                 <div className="px-6 py-3 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
                   <div className="text-sm text-gray-500">

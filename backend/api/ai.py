@@ -42,7 +42,7 @@ NOTE: X/20
 FEEDBACK: ton commentaire ici...
 
 Exemple :  
-NOTE: 14.5/20  
+NOTE: 1O.5/20  
 FEEDBACK: La structure générale est bonne, mais certaines requêtes SQL sont mal formulées. Par exemple...
 
 Attention, ne mets RIEN d’autre que ce format.

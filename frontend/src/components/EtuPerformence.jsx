@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import Layout from '../components/Layout'
+import Layout from '../components/Layout';
 import { getCorrection } from '../api';
 import { Bar, Line } from 'react-chartjs-2';
-import { useNavigate, useParams } from 'react-router-dom';
-
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -16,7 +14,6 @@ import {
   Legend
 } from 'chart.js';
 
-// Enregistrer les composants ChartJS
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -28,11 +25,11 @@ ChartJS.register(
   Legend
 );
 
-const EtuPerformence = () => {
+const ClassPerformance = () => {
   const [corrections, setCorrections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('bar');
-  const { id } = useParams();
+
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -47,13 +44,33 @@ const EtuPerformence = () => {
     loadData();
   }, []);
 
-  // Préparer les données pour le graphique
+  // Calculer les moyennes par exercice
+  const exerciseStats = corrections.reduce((acc, curr) => {
+    const exerciseId = curr.exercice;
+    if (!acc[exerciseId]) {
+      acc[exerciseId] = {
+        total: 0,
+        count: 0,
+        exerciseId: exerciseId
+      };
+    }
+    acc[exerciseId].total += curr.note;
+    acc[exerciseId].count += 1;
+    return acc;
+  }, {});
+
+  const exerciseAverages = Object.values(exerciseStats).map(ex => ({
+    exerciseId: ex.exerciseId,
+    average: ex.total / ex.count
+  }));
+
+  // Préparer les données pour les graphiques
   const chartData = {
-    labels: corrections.map(c => `Exercice ${c.exercice}`),
+    labels: exerciseAverages.map(ex => `Exercice ${ex.exerciseId}`),
     datasets: [
       {
-        label: 'Notes obtenues',
-        data: corrections.map(c => c.auto_note),
+        label: 'Moyenne de la classe',
+        data: exerciseAverages.map(ex => ex.average),
         backgroundColor: 'rgba(99, 102, 241, 0.6)',
         borderColor: 'rgba(99, 102, 241, 1)',
         borderWidth: 1,
@@ -69,8 +86,15 @@ const EtuPerformence = () => {
       },
       title: {
         display: true,
-        text: 'Performance par exercice',
+        text: 'Performance de la classe par exercice',
       },
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            return `Moyenne: ${context.raw.toFixed(2)}/20`;
+          }
+        }
+      }
     },
     scales: {
       y: {
@@ -90,19 +114,19 @@ const EtuPerformence = () => {
     },
   };
 
-  // Calculer la moyenne
-  const average = corrections.reduce((acc, curr) => acc + curr.auto_note, 0) / corrections.length || 0;
+  // Calcul de la moyenne générale
+  const classAverage = exerciseAverages.reduce((sum, ex) => sum + ex.average, 0) / exerciseAverages.length || 0;
 
   return (
     <Layout>
       <div className="p-4 sm:p-6">
-        <h1 className="text-2xl font-bold mb-6 text-indigo-600">📊 Mes Performances</h1>
+        <h1 className="text-2xl font-bold mb-6 text-indigo-600">📊 Performances de la Classe</h1>
         
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
           </div>
-        ) : corrections.length === 0 ? (
+        ) : exerciseAverages.length === 0 ? (
           <div className="text-center py-10">
             <p className="text-gray-500">Aucune donnée de performance disponible</p>
           </div>
@@ -111,17 +135,17 @@ const EtuPerformence = () => {
             {/* Statistiques sommaires */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
               <div className="bg-white p-4 rounded-lg shadow">
-                <h3 className="text-gray-500">Exercices complétés</h3>
-                <p className="text-3xl font-bold text-indigo-600">{corrections.length}</p>
+                <h3 className="text-gray-500">Devoir évalués</h3>
+                <p className="text-3xl font-bold text-indigo-600">{exerciseAverages.length}</p>
               </div>
               <div className="bg-white p-4 rounded-lg shadow">
                 <h3 className="text-gray-500">Moyenne générale</h3>
-                <p className="text-3xl font-bold text-indigo-600">{average.toFixed(2)}/20</p>
+                <p className="text-3xl font-bold text-indigo-600">{classAverage.toFixed(2)}/20</p>
               </div>
               <div className="bg-white p-4 rounded-lg shadow">
-                <h3 className="text-gray-500">Meilleure note</h3>
+                <h3 className="text-gray-500">Meilleure moyenne</h3>
                 <p className="text-3xl font-bold text-indigo-600">
-                  {Math.max(...corrections.map(c => c.auto_note))}/20
+                  {Math.max(...exerciseAverages.map(ex => ex.average)).toFixed(2)}/20
                 </p>
               </div>
             </div>
@@ -145,7 +169,7 @@ const EtuPerformence = () => {
             </div>
 
             {/* Graphiques */}
-            <div className="bg-white p-4 rounded-lg shadow-lg">
+            <div className="bg-white p-4 rounded-lg shadow-lg mb-8">
               {activeTab === 'bar' ? (
                 <Bar data={chartData} options={options} />
               ) : (
@@ -153,34 +177,37 @@ const EtuPerformence = () => {
               )}
             </div>
 
-            {/* Détails des exercices */}
-            <div className="mt-8">
-              <h2 className="text-xl font-semibold mb-4">Détail par exercice</h2>
+            {/* Détails par exercice */}
+            <div className="bg-white p-4 rounded-lg shadow">
+              <h2 className="text-xl font-semibold mb-4">Détails par Devoir</h2>
               <div className="overflow-x-auto">
-                <table className="min-w-full bg-white rounded-lg overflow-hidden">
+                <table className="min-w-full">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Exercice</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Note</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Devoir</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Moyenne</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre de copies</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {corrections.map((correction) => (
-                      <tr key={correction.id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          Exercice {correction.exercice}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          <span className={`px-2 py-1 rounded-full text-xs font-semibold ${correction.auto_note >= 10 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                            {correction.auto_note}/20
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {new Date(correction.created_at).toLocaleDateString()}
-                        </td>
-                      </tr>
-                    ))}
+                    {exerciseAverages.sort((a, b) => a.exerciseId - b.exerciseId).map((ex) => {
+                      const exerciseData = exerciseStats[ex.exerciseId];
+                      return (
+                        <tr key={ex.exerciseId}>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            Devoir {ex.exerciseId}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${ex.average >= 10 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                              {ex.average.toFixed(2)}/20
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {exerciseData.count} copie{exerciseData.count > 1 ? 's' : ''}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -192,4 +219,4 @@ const EtuPerformence = () => {
   );
 };
 
-export default EtuPerformence;
+export default ClassPerformance;

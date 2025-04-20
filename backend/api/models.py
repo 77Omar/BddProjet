@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 class User(AbstractUser):
-    ROLE_CHOICES = [('prof', 'Professeur'), ('etudiant', 'Étudiant')]
+    ROLE_CHOICES = [('prof', 'Professeur'), ('etudiant', 'Étudiant'),('admin', 'admin')]
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='etudiant')
     google_id = models.CharField(max_length=255, blank=True, null=True)
     github_id = models.CharField(max_length=255, blank=True, null=True)
@@ -33,6 +33,7 @@ class Correction(models.Model):
     feedback = models.TextField(blank=True, null=True) # commentaire du prof
     auto_note = models.FloatField(default=0)  # Note initiale attribuée par l'IA
     feedback_ia = models.TextField(blank=True, null=True)  # Commentaires de l'IA
+    date = models.DateTimeField(auto_now_add=True,null=True)
 
     def __str__(self):
         return f"Correction de {self.etudiant.username} pour {self.exercice.titre}"

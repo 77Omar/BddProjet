@@ -59,6 +59,28 @@ export const getCorrection = async () => {
   }
 };
 
+
+export const getMesCorrections = async (etudiantId) => {
+  try {
+    // Ajout du paramètre etudiant_id dans la requête
+    const response = await api.get("/api/Mes_notes/", {
+      params: {
+        etudiant_id: etudiantId
+      }
+    });
+    
+    // Filtrage supplémentaire côté client (bonne pratique)
+    const filteredData = response.data.filter(
+      correction => correction.etudiant === etudiantId
+    );
+    
+    return response;
+  } catch (error) {
+    console.error("Erreur lors de la récupération des corrections:", error);
+    throw error;
+  }
+};
+
 export const createExercice = async (formData) => {
   try {
     const response = await api.post("/api/exercises/", formData, {
@@ -95,7 +117,6 @@ export const getCurrentUser = async () => {
     return response.data;
   } catch (error) {
     console.error("Erreur de récupération de l'utilisateur:", error);
-    // Gestion spécifique du 401
     if (error.response?.status === 401) {
       localStorage.removeItem("access_token");
       window.location.href = "/login";
@@ -112,6 +133,11 @@ export const loginUser = async (credentials) => {
     console.error("Erreur de connexion:", error);
     throw error;
   }
+};
+
+export const updateCorrection = async (id, data) => {
+  const response = await api.patch(`/api/notes/${id}/`, data);
+  return response;
 };
 
 export default api;

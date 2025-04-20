@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Layout from '../components/Layout'
-import { getCorrection } from '../api';
+import { getMesCorrections } from '../api';
 import { Bar, Line } from 'react-chartjs-2';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
@@ -32,19 +32,21 @@ const MaPerformence = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('bar');
   const { id } = useParams();
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const data = await getCorrection();
-        setCorrections(data);
-      } catch (error) {
-        console.error("Erreur de chargement:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadData();
-  }, []);
+ useEffect(() => {
+   const loadReponses = async () => {
+     try {
+       const data = await getMesCorrections(id);
+     
+       setCorrections(data.data);
+       console.log('Données reçues:', data.data); 
+     } catch (error) {
+       console.error("Erreur de chargement:", error);
+     } finally {
+       setLoading(false);
+     }
+   };
+   loadReponses();
+ }, [id]); 
 
   // Préparer les données pour le graphique
   const chartData = {
@@ -90,7 +92,7 @@ const MaPerformence = () => {
   };
 
   // Calculer la moyenne
-  const average = corrections.reduce((acc, curr) => acc + curr.auto_note, 0) / corrections.length || 0;
+  const average = corrections.reduce((acc, curr) => acc + curr.note, 0) / corrections.length || 0;
 
   return (
     <Layout>
@@ -110,17 +112,17 @@ const MaPerformence = () => {
             {/* Statistiques sommaires */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
               <div className="bg-white p-4 rounded-lg shadow">
-                <h3 className="text-gray-500">Exercices complétés</h3>
+                <h3 className="text-gray-500">Devoir Rendus</h3>
                 <p className="text-3xl font-bold text-indigo-600">{corrections.length}</p>
               </div>
               <div className="bg-white p-4 rounded-lg shadow">
-                <h3 className="text-gray-500">Moyenne générale</h3>
+                <h3 className="text-gray-500">Moyenne </h3>
                 <p className="text-3xl font-bold text-indigo-600">{average.toFixed(2)}/20</p>
               </div>
               <div className="bg-white p-4 rounded-lg shadow">
                 <h3 className="text-gray-500">Meilleure note</h3>
                 <p className="text-3xl font-bold text-indigo-600">
-                  {Math.max(...corrections.map(c => c.auto_note))}/20
+                  {Math.max(...corrections.map(c => c.note))}/20
                 </p>
               </div>
             </div>
@@ -154,7 +156,7 @@ const MaPerformence = () => {
 
             {/* Détails des exercices */}
             <div className="mt-8">
-              <h2 className="text-xl font-semibold mb-4">Détail par exercice</h2>
+              <h2 className="text-xl font-semibold mb-4">Détail par Devoir</h2>
               <div className="overflow-x-auto">
                 <table className="min-w-full bg-white rounded-lg overflow-hidden">
                   <thead className="bg-gray-50">
@@ -168,15 +170,15 @@ const MaPerformence = () => {
                     {corrections.map((correction) => (
                       <tr key={correction.id}>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          Exercice {correction.exercice}
+                          Devoir {correction.exercice}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          <span className={`px-2 py-1 rounded-full text-xs font-semibold ${correction.auto_note >= 10 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                            {correction.auto_note}/20
+                          <span className={`px-2 py-1 rounded-full text-xs font-semibold ${correction.note >= 10 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                            {correction.note}/20
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {new Date(correction.created_at).toLocaleDateString()}
+                          {new Date(correction.date).toLocaleDateString()}
                         </td>
                       </tr>
                     ))}

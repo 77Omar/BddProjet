@@ -36,23 +36,49 @@ const Sidebar = ({ onClose }) => {
     loadUser();
   }, [navigate]);
 
-  // Menu items...
+  // Menu items de base
   const baseMenuItems = [
     { path: "/dashboard", name: "Dashboard", icon: "📊" },
-    { path: "/utilisateurs", name: "Utilisateurs", icon: "👥" },
     { path: "/listExercices", name: "Exercices", icon: "📝" },
   ];
 
-  const fullMenuItems = currentUser 
-    ? [
-        ...baseMenuItems,
+  // Menu items supplémentaires en fonction du rôle
+  const getAdditionalMenuItems = () => {
+    if (!currentUser) return [];
+    
+    const additionalItems = [];
+    
+    if (currentUser.role == 'admin') {
+      additionalItems.push(
+        { path: "/utilisateurs", name: "Utilisateurs", icon: "👥" },
+
+      );
+    }
+    if (currentUser.role == 'etudiant') {
+      additionalItems.push(
         { path: `/etudiants/${currentUser.id}/notes`, name: "Mes Notes", icon: "✅" },
         { path: `/etudiants/${currentUser.id}/performances`, name: "Mes Performances", icon: "📈" },
-        { path: "/mes_etudiant", name: "Mes Étudiants", icon: "👨‍🎓" },
-        { path: "/performances_des_etudiants", name: "Performance de la classe", icon: "📈" },
 
-      ]
+      );
+    }
+    
+    if (currentUser.role == 'prof') {
+      additionalItems.push(
+        { path: "/mes_etudiant", name: "Mes Étudiants", icon: "👨‍🎓" },
+      { path: "/performances_des_etudiants", name: "Performance de la classe", icon: "📈" }
+      );
+    }
+    additionalItems.push(
+     
+    );
+    
+    return additionalItems;
+  };
+
+  const fullMenuItems = currentUser 
+    ? [...baseMenuItems, ...getAdditionalMenuItems()]
     : baseMenuItems;
+
 
   if (loading) {
     return (

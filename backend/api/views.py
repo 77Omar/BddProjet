@@ -190,3 +190,14 @@ def soumettre_reponse(request):
             {'message': 'Une erreur interne est survenue'},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+#recuperer les correction du user
+class CorrectionListAPIView(APIView):
+    def get(self, request):
+        etudiant_id = request.query_params.get('etudiant_id')
+        
+        if not etudiant_id:
+            return Response({"error": "etudiant_id parameter is required"}, status=400)
+            
+        corrections = Correction.objects.filter(etudiant=etudiant_id)
+        serializer = CorrectionSerializer(corrections, many=True)
+        return Response(serializer.data)

@@ -7,7 +7,6 @@ const Dashboard = () => {
       <div className="space-y-6">
         {/* Header */}
         <header>
-          <h1 className="text-3xl font-semibold text-gray-800">Tableau de Bord</h1>
         </header>
 
         {/* Statistiques Cards */}
