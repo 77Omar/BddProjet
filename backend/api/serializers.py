@@ -53,7 +53,32 @@ class ExerciceSerializer(serializers.ModelSerializer):
         model = Exercice
         fields = '__all__' """
 
+"""
 class CorrectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Correction
         fields = '__all__'
+"""
+
+
+class CorrectionSerializer(serializers.ModelSerializer):
+    professeur_id = serializers.IntegerField(source='exercice.professeur.id', read_only=True)
+    professeur_username = serializers.CharField(source='exercice.professeur.username', read_only=True)
+    exercice_titre = serializers.CharField(source='exercice.titre', read_only=True)
+
+    class Meta:
+        model = Correction
+        fields = [
+            'id',
+            'exercice',
+            'exercice_titre',
+            'etudiant',
+            'fichier_reponse',
+            'note',
+            'feedback',
+            'auto_note',
+            'feedback_ia',
+            'date',
+            'professeur_id',  
+            'professeur_username'  
+        ]

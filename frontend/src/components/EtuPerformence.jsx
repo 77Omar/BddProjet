@@ -66,7 +66,7 @@ const ClassPerformance = () => {
 
   // Préparer les données pour les graphiques
   const chartData = {
-    labels: exerciseAverages.map(ex => `Exercice ${ex.exerciseId}`),
+    labels: exerciseAverages.map(ex => `Devoir ${ex.exerciseId}`),
     datasets: [
       {
         label: 'Moyenne de la classe',

@@ -94,6 +94,13 @@ class FichierExerciceView(APIView):
     def get(self, request, pk):
         exercice = Exercice.objects.get(pk=pk)
         return FileResponse(open(exercice.fichier.path, 'rb'))
+
+"""
+"""
+class FichierReponseView(APIView):
+    def get(self, request, pk):
+        reponse = Correction.objects.get(pk=pk)
+        return FileResponse(open(reponse.fichier_reponse.path, 'rb'))
     
 """
 
@@ -191,6 +198,7 @@ def soumettre_reponse(request):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 #recuperer les correction du user
+"""
 class CorrectionListAPIView(APIView):
     def get(self, request):
         etudiant_id = request.query_params.get('etudiant_id')
@@ -199,5 +207,20 @@ class CorrectionListAPIView(APIView):
             return Response({"error": "etudiant_id parameter is required"}, status=400)
             
         corrections = Correction.objects.filter(etudiant=etudiant_id)
+        serializer = CorrectionSerializer(corrections, many=True)
+        return Response(serializer.data)
+"""
+
+
+class CorrectionListAPIView(APIView):
+    def get(self, request):
+        etudiant_id = request.query_params.get('etudiant_id')
+        
+        if not etudiant_id:
+            return Response({"error": "etudiant_id parameter is required"}, status=400)
+            
+        corrections = Correction.objects.filter(etudiant=etudiant_id)\
+                                      .select_related('exercice', 'exercice__professeur')
+        
         serializer = CorrectionSerializer(corrections, many=True)
         return Response(serializer.data)

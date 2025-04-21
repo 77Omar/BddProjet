@@ -15,6 +15,7 @@ from .views import (
     logout_view,
     ExerciceViewSet,
     soumettre_reponse,
+    FichierReponseView,
 
 )
 
@@ -36,6 +37,8 @@ urlpatterns = [
     path('correction/', soumettre_reponse, name='correction'),
     path('api/Mes_notes/', CorrectionListAPIView.as_view(), name='correction-list'),
     path('api/exercices/<int:pk>/fichier/', FichierExerciceView.as_view()),
+    path('api/reponse/<int:pk>/fichier/', FichierReponseView.as_view()),
+
     path('api/auth/', include(auth_patterns)),
     path('api/', include(router.urls)),
 ]

@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Dialog } from '@headlessui/react';
-import { getMesCorrections, updateCorrection } from '../api';
+import { getCurrentUser,getMesCorrections, updateCorrection } from '../api';
 import Layout from '../components/Layout';
 import { useParams } from 'react-router-dom';
-import { PencilSquareIcon } from '@heroicons/react/24/outline';
+import { EyeIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 
 const MesNotes = () => {
   const [corrections, setCorrections] = useState([]);
@@ -17,6 +17,7 @@ const MesNotes = () => {
   const { id } = useParams();
   const animationRef = useRef(null);
   const charIndexRef = useRef(0);
+  const [currentUser, setCurrentUser] = useState(null)
 
   useEffect(() => {
     const loadReponses = async () => {
@@ -29,6 +30,18 @@ const MesNotes = () => {
         setLoading(false);
       }
     };
+    const loadUser = async () => {
+      try {
+        const user = await getCurrentUser()
+        setCurrentUser(user) 
+        setFormData(prev => ({ ...prev, professeur: user.id }))
+      } catch (error) {
+        console.error("Erreur de chargement de l'utilisateur:", error)
+        navigate('/login')
+      }
+    }
+    loadUser()
+
     loadReponses();
   }, [id]);
 
@@ -88,6 +101,11 @@ const MesNotes = () => {
     };
   }, []);
 
+  const handleViewFile = async (ReponseId) => {
+    const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+    window.open(`${API_BASE_URL}/api/reponse/${ReponseId}/fichier/`, '_blank');
+  };
+
   return (
     <Layout>
       <div className="p-3 sm:p-6">
@@ -109,19 +127,30 @@ const MesNotes = () => {
                   key={correction.id}
                   className="relative bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-lg p-3 sm:p-4 shadow-md hover:shadow-lg transition-all"
                 >
-                  <div className="absolute top-2 right-2">
+                 <div className="absolute top-2 right-1 flex  ">
+                    {/* Bouton Voir pour voir la reponse de l'etudiant */}
                     <button 
-                      onClick={() => openEditModal(correction)}
-                      className="p-1 text-white hover:text-yellow-300 transition"
-                      title="Modifier la note"
-                    >
-                      <PencilSquareIcon className="h-5 w-5" />
-                    </button>
+                    onClick={() => handleViewFile(correction.id)}
+                    className="p-1 rounded-full bg-white/20 hover:bg-white/30 transition-all"
+                    title="Voir la réponse"
+                  >
+                    <EyeIcon className="h-5 w-5 text-white hover:text-yellow-300" />
+                  </button>
+
+                    {/* Bouton Modifier (seulement pour le professeur) */}
+                    {currentUser?.id === correction?.professeur_id && (
+                      <button 
+                        onClick={() => openEditModal(correction)}
+                        className="p-1 text-white hover:text-yellow-300 transition-colors"
+                        title="Modifier la note"
+                      >
+                        <PencilSquareIcon className="h-5 w-5" />
+                      </button>
+                    )}
                   </div>
-                  
                   <h2 className="text-sm sm:text-base font-bold mb-1">Devoir #{correction.exercice}</h2>
                   <p className="text-base sm:text-lg font-bold">
-                    Note: <span className="text-yellow-300">{correction.note}/20</span>
+                    Note : <span className="text-yellow-300">{correction.note}/20</span>
                   </p>
                   <button
                     onClick={() => openFeedbackModal(correction.feedback_ia)}
@@ -135,7 +164,7 @@ const MesNotes = () => {
           </div>
         )}
 
-        {/* Modal Feedback avec animation */}
+        {/* Modal Feedback  */}
         <Dialog open={isFeedbackModalOpen} onClose={closeFeedbackModal} className="relative z-50">
           <div className="fixed inset-0 bg-black/40" aria-hidden="true" />
           <div className="fixed inset-0 flex items-center justify-center p-1 sm:p-4">
