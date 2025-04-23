@@ -16,6 +16,7 @@ from rest_framework.permissions import AllowAny
 import fitz  # PyMuPDF
 from django.http import FileResponse
 from .models import Exercice
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 User = get_user_model()
 
@@ -23,6 +24,26 @@ def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
     return {'refresh': str(refresh), 'access': str(refresh.access_token)}
 
+
+"""
+"""
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        
+        if response.status_code == 200:
+            username = request.data.get("username")
+            try:
+                user = User.objects.get(username=username)
+                response.data["role"] = user.role
+                response.data["user_id"] = user.id 
+            except User.DoesNotExist:
+                return Response(
+                    {"error": "Utilisateur non trouvé"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        return response
 """
 
 """
@@ -76,11 +97,22 @@ class CurrentUserView(APIView):
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
 """
-"""
 class ExerciceViewSet(viewsets.ModelViewSet):
     queryset = Exercice.objects.all()
     serializer_class = ExerciceSerializer
-    #permission_classes = [permissions.IsAuthenticated]  
+    #permission_classes = [permissions.IsAuthenticated] 
+"""
+
+
+class ExerciceViewSet(viewsets.ModelViewSet):
+    queryset = Exercice.objects.all()
+    serializer_class = ExerciceSerializer
+
+    def get_serializer_context(self):
+        # Passe la requête au serializer
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context 
 """
 """
 class CorrectionViewSet(viewsets.ModelViewSet):

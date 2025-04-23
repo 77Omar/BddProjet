@@ -20,7 +20,7 @@ const ExerciceForm = () => {
     const loadUser = async () => {
       try {
         const user = await getCurrentUser()
-        setCurrentUser(user) // Correction ici (parentheses au lieu de =)
+        setCurrentUser(user) 
         setFormData(prev => ({ ...prev, professeur: user.id }))
       } catch (error) {
         console.error("Erreur de chargement de l'utilisateur:", error)

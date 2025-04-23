@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import { Link } from 'react-router-dom';
-import { getExercices,getCurrentUser } from "../api";
+import {deleteExercice, getExercices,getCurrentUser } from "../api";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ListeExercice = () => {
   const [exercices, setExercices] = useState([]);
@@ -53,11 +55,41 @@ const ListeExercice = () => {
     window.open(`${API_BASE_URL}/api/exercices/${exerciceId}/fichier/`, '_blank');
   };
 
-  const confirmDelete = (id) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer cet exercice ?")) {
-      //  la logique de suppression
-      console.log("Suppression de l'exercice", id);
-    }
+  const confirmDelete = async (id) => {
+    toast.info(
+      <div>
+        <p>Êtes-vous sûr de vouloir supprimer cet exercice ?</p>
+        <div className="flex justify-center gap-4 mt-2">
+          <button 
+            className="px-4 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+            onClick={async () => {
+              toast.dismiss();
+              try {
+                 await deleteExercice(id);
+                setExercices(exercices.filter(ex => ex.id !== id));
+                toast.success("Exercice supprimé avec succès");
+              } catch (error) {
+                toast.error("Erreur lors de la suppression");
+                console.error(error);
+              }
+            }}
+          >
+            Oui
+          </button>
+          <button 
+            className="px-4 py-1 bg-gray-500 text-white rounded hover:bg-gray-600"
+            onClick={() => toast.dismiss()}
+          >
+            Non
+          </button>
+        </div>
+      </div>,
+      {
+        autoClose: false,
+        closeButton: false,
+        position: 'top-center',
+      }
+    );
   };
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
@@ -157,12 +189,19 @@ const ListeExercice = () => {
                         <td className="px-6 py-4 text-sm font-medium">
                           <div className="flex space-x-4">
                           {currentUser?.role === 'etudiant' && (
-                            <Link 
+
+                            exercice.a_repondu ? (
+                              <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
+                                Déjà répondu
+                              </span>
+                            ) : (
+                              <Link 
                               to={`/exercices/${exercice.id}/reponse`} 
                               className="text-blue-600 hover:text-blue-800 hover:underline"
                             >
                               Répondre
-                            </Link> )}
+                            </Link>
+                            ) )}
                             {(currentUser?.id === exercice.professeur.id) && (
                             <Link
                               to={`/exercices/${exercice.id}/edit`}

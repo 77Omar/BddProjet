@@ -82,7 +82,6 @@ const Etudiant = () => {
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Étudiant</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
@@ -100,9 +99,7 @@ const Etudiant = () => {
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-500">
-                          {user.email}
-                        </td>
+                       
                         <td className="px-6 py-4">
                           <div className="flex flex-wrap gap-2">
                             <Link

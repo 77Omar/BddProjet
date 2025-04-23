@@ -9,6 +9,7 @@ from .views import (
     CorrectionListAPIView,
     CorrectionViewSet,
     CurrentUserView,
+    CustomTokenObtainPairView,
     FichierExerciceView,
     UserViewSet,
     register_view,
@@ -25,7 +26,9 @@ router.register(r'notes', CorrectionViewSet)
 router.register(r'users', UserViewSet)
 
 auth_patterns = [
-    path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('login/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
+
+   # path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('verify/', TokenVerifyView.as_view(), name='token_verify'),
     path('register/', register_view, name='register'),

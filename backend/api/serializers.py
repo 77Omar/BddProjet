@@ -32,6 +32,8 @@ class RegisterSerializer(serializers.ModelSerializer):
             role=validated_data['role']
         )
         return user
+    
+"""
 class ExerciceSerializer(serializers.ModelSerializer):
     # Pour la lecture (GET)
     professeur = UserSerializer(read_only=True)
@@ -46,20 +48,33 @@ class ExerciceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Exercice
         fields = ['id', 'titre', 'fichier', 'date_creation', 'professeur', 'professeur_id']
+"""
 
-""" class ExerciceSerializer(serializers.ModelSerializer):
-    professeur=UserSerializer()
+class ExerciceSerializer(serializers.ModelSerializer):
+    professeur = UserSerializer(read_only=True)
+    professeur_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        source='professeur',
+        write_only=True
+    )
+    # Nouveau champ en lecture seule
+    a_repondu = serializers.SerializerMethodField()
+
     class Meta:
         model = Exercice
-        fields = '__all__' """
+        fields = ['id', 'titre', 'fichier', 'date_creation', 
+                'professeur', 'professeur_id', 'a_repondu']
 
-"""
-class CorrectionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Correction
-        fields = '__all__'
-"""
-
+    def get_a_repondu(self, obj):
+        # Récupère l'utilisateur connecté depuis le contexte
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            # Vérifie si une correction existe pour cet exercice et cet utilisateur
+            return Correction.objects.filter(
+                exercice=obj,
+                etudiant=request.user
+            ).exists()
+        return False
 
 class CorrectionSerializer(serializers.ModelSerializer):
     professeur_id = serializers.IntegerField(source='exercice.professeur.id', read_only=True)

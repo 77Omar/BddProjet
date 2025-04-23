@@ -7,6 +7,7 @@ const Sidebar = ({ onClose }) => {
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const role =  localStorage.getItem("role")
 
   const linkClass = (path) => 
     `flex items-center py-3 px-4 rounded-lg transition-all duration-300 ${
@@ -20,6 +21,7 @@ const Sidebar = ({ onClose }) => {
       onClose?.();
     }
   };
+
 
   useEffect(() => {
     const loadUser = async () => {
@@ -38,7 +40,6 @@ const Sidebar = ({ onClose }) => {
 
   // Menu items de base
   const baseMenuItems = [
-    { path: "/dashboard", name: "Dashboard", icon: "📊" },
     { path: "/listExercices", name: "Exercices", icon: "📝" },
   ];
 
@@ -48,24 +49,28 @@ const Sidebar = ({ onClose }) => {
     
     const additionalItems = [];
     
-    if (currentUser.role == 'admin') {
+    if (role == 'admin') {
       additionalItems.push(
+        { path: "/dashboardAdmin", name: "Dashboard", icon: "📊" },
         { path: "/utilisateurs", name: "Utilisateurs", icon: "👥" },
-
+        { path: "/mes_etudiant", name: "Étudiants", icon: "👨‍🎓" },
+        { path: "/performances_des_etudiants", name: "Performance de la classe", icon: "📈" }
       );
     }
-    if (currentUser.role == 'etudiant') {
+    if (role == 'etudiant') {
       additionalItems.push(
+        { path: "/dashboardEtu", name: "Dashboard", icon: "📊" },
         { path: `/etudiants/${currentUser.id}/notes`, name: "Mes Notes", icon: "✅" },
         { path: `/etudiants/${currentUser.id}/performances`, name: "Mes Performances", icon: "📈" },
 
       );
     }
     
-    if (currentUser.role == 'prof') {
+    if (role == 'prof') {
       additionalItems.push(
+        { path: "/dashboardProf", name: "Dashboard", icon: "📊" },
         { path: "/mes_etudiant", name: "Mes Étudiants", icon: "👨‍🎓" },
-      { path: "/performances_des_etudiants", name: "Performance de la classe", icon: "📈" }
+         { path: "/performances_des_etudiants", name: "Performance de la classe", icon: "📈" }
       );
     }
     additionalItems.push(
@@ -76,7 +81,7 @@ const Sidebar = ({ onClose }) => {
   };
 
   const fullMenuItems = currentUser 
-    ? [...baseMenuItems, ...getAdditionalMenuItems()]
+    ? [...getAdditionalMenuItems(), ...baseMenuItems]
     : baseMenuItems;
 
 

@@ -22,7 +22,9 @@ import EtudiantPage  from './pages/EtudiantPage';
 import EtuPerformencePage  from './pages/EtuPerformencePage';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import DashboardAdminPage from './pages/DashboardAdminPage';
+import DashboardEtudiantPage from './pages/DashboardEtudiantPage';
+import DashboardProfPage from './pages/DashboardProfPage';
 function Logout() {
   localStorage.clear();
   return <Navigate to="/login" />;
@@ -36,6 +38,7 @@ function RegisterAndLogout() {
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
   const location = useLocation();
+  const role =  localStorage.getItem("role")
 
   useEffect(() => {
     checkAuth();
@@ -104,13 +107,38 @@ function App() {
             />
              <Route path="/login" element={<LoginPage />} />
              <Route path="/register" element={<RegisterPage />} />
-             <Route path="/dashboard" element={<Dashboard />} />
-             <Route path="/utilisateurs" element={<UsersPage />} />
+
+              {role==="etudiant" && (
+                <>
+                 <Route path="/dashboardEtu" element={<DashboardEtudiantPage />} />
+                  <Route path="/exercices/:id/reponse" element={<ReponsePage />} />
+
+                </>
+              )
+
+              }
+            
+            {role==="prof" &&(
+              <>
+             <Route path="/dashboardProf" element={<DashboardProfPage />} />
              <Route path="/exercices" element={<ExercicePage />} />
 
-             <Route path="/listExercices" element={<ListExoPage />} />
-             <Route path="/exercices/:id/reponse" element={<ReponsePage />} />
+              </>
+            )
+
+            }
              <Route path="/mes_etudiant" element={<EtudiantPage />} />
+            {role==="admin" &&(
+              <>
+              <Route path="/dashboardAdmin" element={<DashboardAdminPage />} />
+               <Route path="/utilisateurs" element={<UsersPage />} />
+
+              </>
+            )
+
+            }
+             
+             <Route path="/listExercices" element={<ListExoPage />} />
              <Route path="/etudiants/:id/notes" element={<MesNotesPage />} />
              <Route path="/etudiants/:id/performances" element={<MaPerformencePage />} />
              <Route path="/performances_des_etudiants" element={<EtuPerformencePage />} />

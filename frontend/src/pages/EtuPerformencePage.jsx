@@ -1,4 +1,3 @@
-// src/pages/UsersPage.jsx
 import React from 'react';
 import EtuPerformence from '../components/EtuPerformence';
 const EtuPerformencePage = () => {

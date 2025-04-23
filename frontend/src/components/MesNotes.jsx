@@ -196,7 +196,7 @@ const MesNotes = () => {
           <div className="fixed inset-0 flex items-center justify-center p-4">
             <Dialog.Panel className="bg-white w-full max-w-md rounded-lg shadow-xl p-6">
               <Dialog.Title className="text-lg font-bold mb-4">
-                Modifier la note - Devoir #{selectedCorrection?.exercice}
+                Ajuster la note - Devoir #{selectedCorrection?.exercice}
               </Dialog.Title>
               
               <div className="mb-4">

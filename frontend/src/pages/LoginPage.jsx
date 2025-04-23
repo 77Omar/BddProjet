@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
 import Layout from "../components/Layout"
+import {getCurrentUser } from "../api";
 
 const LoginPage = () => {
   const [username, setUsername] = useState("");
@@ -9,7 +10,7 @@ const LoginPage = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -23,8 +24,17 @@ const LoginPage = () => {
 
       localStorage.setItem("access_token", response.data.access);
       localStorage.setItem("refresh_token", response.data.refresh);
+      localStorage.setItem("role",response.data.role);
+      const role = response.data.role;
 
-      navigate("/dashboard"); // Redirige après connexion
+
+      if(role==("admin")){
+        navigate("/dashboardAdmin"); 
+      }else if(role=='prof'){
+        navigate("/dashboardProf");
+      }else if(role=="etudiant"){
+        navigate("/dashboardEtu"); 
+      }
     } catch (error) {
       setError("Nom d'utilisateur ou mot de passe incorrect.");
     }finally{
