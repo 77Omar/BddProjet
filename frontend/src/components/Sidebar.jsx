@@ -41,6 +41,8 @@ const Sidebar = ({ onClose }) => {
   // Menu items de base
   const baseMenuItems = [
     { path: "/listExercices", name: "Exercices", icon: "📝" },
+    { path: "/listcorrection", name: "Corrections", icon: "📝" },
+
   ];
 
   // Menu items supplémentaires en fonction du rôle

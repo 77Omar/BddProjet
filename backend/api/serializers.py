@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 
-from .models import Correction, Exercice
+from .models import Correction, CorrectionAuto, Exercice
 
 User = get_user_model()
 
@@ -97,3 +97,9 @@ class CorrectionSerializer(serializers.ModelSerializer):
             'professeur_id',  
             'professeur_username'  
         ]
+
+class CorrectionAutoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CorrectionAuto
+        fields = ['id', 'exercice', 'correction', 'etat', 'date_creation', 'date_modification']
+        read_only_fields = ['date_creation', 'date_modification']

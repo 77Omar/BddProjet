@@ -59,6 +59,16 @@ export const getCorrection = async () => {
   }
 };
 
+export const getCorrectionAuto = async () => {
+  try {
+    const response = await api.get("/api/correctionAuto/");
+    return response.data;
+  } catch (error) {
+    console.error("Erreur lors de la récupération des corrections:", error);
+    throw error;
+  }
+};
+
 
 export const getMesCorrections = async (etudiantId) => {
   try {
@@ -151,6 +161,11 @@ export const loginUser = async (credentials) => {
 
 export const updateCorrection = async (id, data) => {
   const response = await api.patch(`/api/notes/${id}/`, data);
+  return response;
+};
+
+export const validat = async (id, data) => {
+  const response = await api.patch(`/api/correctionAuto/${id}/`, data);
   return response;
 };
 

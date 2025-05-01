@@ -56,7 +56,7 @@ const ExerciceForm = () => {
       formDataToSend.append('professeur_id', currentUser.id)
 
       await createExercice(formDataToSend)
-      toast.success('Exercice enregistrer avec succès !', {
+      toast.success('Exercice enregistrer avec succès !! Correction automatique en cours .', {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,

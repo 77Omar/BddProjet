@@ -10,9 +10,7 @@ const StudentDashboard = () => {
         <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
           🎓 Mon Espace Étudiant
         </h1>
-        <button className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-lg hover:scale-105 transition-transform">
-          + Nouvelle Soumission
-        </button>
+        
       </header>
   
       {/* Statistiques Perso */}

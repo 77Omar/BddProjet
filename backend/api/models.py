@@ -37,3 +37,17 @@ class Correction(models.Model):
 
     def __str__(self):
         return f"Correction de {self.etudiant.username} pour {self.exercice.titre}"
+
+
+class CorrectionAuto(models.Model):
+    """
+    permet d'enregistrer les corrections automatiques des exercice 
+    """
+    exercice = models.ForeignKey(Exercice, on_delete=models.CASCADE, related_name='corrections_auto')
+    correction = models.TextField() 
+    etat = models.BooleanField(default=False) 
+    date_creation = models.DateTimeField(auto_now_add=True)
+    date_modification = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Correction auto pour {self.exercice.titre} ({'Validée' if self.etat else 'En attente'})"

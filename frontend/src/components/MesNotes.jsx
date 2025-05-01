@@ -18,6 +18,7 @@ const MesNotes = () => {
   const animationRef = useRef(null);
   const charIndexRef = useRef(0);
   const [currentUser, setCurrentUser] = useState(null)
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
   useEffect(() => {
     const loadReponses = async () => {
@@ -102,8 +103,8 @@ const MesNotes = () => {
   }, []);
 
   const handleViewFile = async (ReponseId) => {
-    const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
-    window.open(`${API_BASE_URL}/api/reponse/${ReponseId}/fichier/`, '_blank');
+    //const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+    window.open(`${API_URL}/api/reponse/${ReponseId}/fichier/`, '_blank');
   };
 
   return (

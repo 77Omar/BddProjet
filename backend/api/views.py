@@ -1,7 +1,9 @@
+import logging
+import threading
 from venv import logger
 from rest_framework import viewsets, permissions
-from .serializers import CorrectionSerializer, UserSerializer, ExerciceSerializer
-from .models import User, Exercice, Correction
+from .serializers import CorrectionAutoSerializer, CorrectionSerializer, UserSerializer, ExerciceSerializer
+from .models import CorrectionAuto, User, Exercice, Correction
 from django.contrib.auth import get_user_model
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -9,7 +11,7 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import RegisterSerializer, UserSerializer
 from rest_framework.views import APIView
-from .ai import corriger_exercice
+from .ai import corriger_exercice,corriger_exercice2
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.permissions import AllowAny
@@ -17,6 +19,7 @@ import fitz  # PyMuPDF
 from django.http import FileResponse
 from .models import Exercice
 from rest_framework_simplejwt.views import TokenObtainPairView
+from django.db.models import Q
 
 User = get_user_model()
 
@@ -104,15 +107,35 @@ class ExerciceViewSet(viewsets.ModelViewSet):
 """
 
 
+""" class ExerciceViewSet(viewsets.ModelViewSet):
+    queryset = Exercice.objects.all()
+    serializer_class = ExerciceSerializer
+
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context 
+     """
+
 class ExerciceViewSet(viewsets.ModelViewSet):
     queryset = Exercice.objects.all()
     serializer_class = ExerciceSerializer
 
+    def perform_create(self, serializer):
+        # Sauvegarde d'abord l'exercice
+        exercice = serializer.save()
+        
+        # Lance la correction auto en arrière-plan
+        threading.Thread(
+            target=correction_auto_task,
+            args=(exercice.id,)
+        ).start()
+
     def get_serializer_context(self):
-        # Passe la requête au serializer
         context = super().get_serializer_context()
         context['request'] = self.request
-        return context 
+        return context
 """
 """
 class CorrectionViewSet(viewsets.ModelViewSet):
@@ -229,6 +252,7 @@ def soumettre_reponse(request):
             {'message': 'Une erreur interne est survenue'},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+
 #recuperer les correction du user
 """
 class CorrectionListAPIView(APIView):
@@ -256,3 +280,51 @@ class CorrectionListAPIView(APIView):
         
         serializer = CorrectionSerializer(corrections, many=True)
         return Response(serializer.data)
+
+"""
+
+"""
+logger = logging.getLogger(__name__)
+
+def correction_auto_task(exercice_id):
+    try:
+        exercice = Exercice.objects.get(id=exercice_id)
+        
+        # Extraction du texte
+        texte_exercice = extraire_texte_pdf(exercice.fichier)
+        
+        # Correction automatique
+        correction_text = corriger_exercice2(texte_exercice=texte_exercice)
+        
+        # Enregistrement
+        CorrectionAuto.objects.create(
+            exercice=exercice,
+            correction=correction_text,
+            etat=False 
+        )
+        
+        logger.info(f"Correction auto générée pour l'exercice {exercice_id}")
+        
+    except Exception as e:
+        logger.error(f"Erreur dans correction_auto_task: {str(e)}", exc_info=True)
+
+"""
+
+"""
+""" class CorrectionAutoViewSet(viewsets.ModelViewSet):
+    queryset = CorrectionAuto.objects.all()
+    serializer_class = CorrectionAutoSerializer
+    #permission_classes = [permissions.IsAuthenticated]  """
+
+    
+class CorrectionAutoViewSet(viewsets.ModelViewSet):
+    queryset = CorrectionAuto.objects.all()
+    serializer_class = CorrectionAutoSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        
+        return CorrectionAuto.objects.filter(
+            Q(etat=True) |  # Condition 1: etat=True
+            Q(exercice__professeur=self.request.user)  # Condition 2: exercice du prof
+        ).select_related('exercice', 'exercice__professeur')

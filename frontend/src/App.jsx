@@ -25,6 +25,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import DashboardAdminPage from './pages/DashboardAdminPage';
 import DashboardEtudiantPage from './pages/DashboardEtudiantPage';
 import DashboardProfPage from './pages/DashboardProfPage';
+import ListCorrectionPage from './pages/ListCorrectionPage';
 function Logout() {
   localStorage.clear();
   return <Navigate to="/login" />;
@@ -139,6 +140,7 @@ function App() {
             }
              
              <Route path="/listExercices" element={<ListExoPage />} />
+             <Route path="/listcorrection" element={<ListCorrectionPage />} />
              <Route path="/etudiants/:id/notes" element={<MesNotesPage />} />
              <Route path="/etudiants/:id/performances" element={<MaPerformencePage />} />
              <Route path="/performances_des_etudiants" element={<EtuPerformencePage />} />

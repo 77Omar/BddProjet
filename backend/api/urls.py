@@ -6,6 +6,7 @@ from rest_framework_simplejwt.views import (
     TokenVerifyView
 )
 from .views import (
+    CorrectionAutoViewSet,
     CorrectionListAPIView,
     CorrectionViewSet,
     CurrentUserView,
@@ -21,6 +22,7 @@ from .views import (
 )
 
 router = DefaultRouter()
+router.register(r'correctionAuto', CorrectionAutoViewSet)
 router.register(r'exercises', ExerciceViewSet)
 router.register(r'notes', CorrectionViewSet)
 router.register(r'users', UserViewSet)

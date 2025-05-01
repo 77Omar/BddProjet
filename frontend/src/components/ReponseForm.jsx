@@ -76,13 +76,8 @@ const ReponseForm = () => {
     <Layout>
       <div className="space-y-6">
         <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/30 p-6">
-          <h1 className="text-2xl font-bold text-gray-800">Soumettre une réponse</h1>
-          <p className="text-sm text-gray-500">Exercice ID: {id}</p>
-          {currentUser && (
-            <p className="text-sm text-gray-500 mt-1">
-              Étudiant : {currentUser.username}
-            </p>
-          )}
+          <h1 className="text-2xl font-bold text-gray-800">Soumettre une réponse au devoir N° {id}</h1>
+         
           {error && <div className="mt-2 p-2 bg-red-100 text-red-700 rounded-md">{error}</div>}
         </div>
 
@@ -129,7 +124,7 @@ const ReponseForm = () => {
               disabled={isSubmitting}
               className={`px-4 py-2 rounded-lg text-white ${isSubmitting ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'} transition-colors`}
             >
-              {isSubmitting ? 'Envoi en cours...' : 'Soumettre'}
+              {isSubmitting ? 'Traitement en cours...' : 'Soumettre'}
             </button>
           </div>
         </form>
