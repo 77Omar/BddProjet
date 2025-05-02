@@ -4,8 +4,6 @@ import api from '../api';
 import UserModal from './UserModal';
 import DeleteConfirmation from './DeleteConfirmation';
 import Layout from '../components/Layout';
-import { fetchUsers } from "../api";
-import { Link } from 'react-router-dom';
 
 const UserList = () => {
     const [users, setUsers] = useState([]);
