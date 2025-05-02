@@ -12,6 +12,7 @@ from .views import (
     CurrentUserView,
     CustomTokenObtainPairView,
     FichierExerciceView,
+    PerformanceDashboardView,
     UserViewSet,
     register_view,
     logout_view,
@@ -39,6 +40,7 @@ auth_patterns = [
 ]
 
 urlpatterns = [
+    path('api/dashboard/', PerformanceDashboardView.as_view(), name='dashboard'),
     path('correction/', soumettre_reponse, name='correction'),
     path('api/Mes_notes/', CorrectionListAPIView.as_view(), name='correction-list'),
     path('api/exercices/<int:pk>/fichier/', FichierExerciceView.as_view()),

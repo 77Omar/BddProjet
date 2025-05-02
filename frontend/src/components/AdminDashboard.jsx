@@ -24,7 +24,7 @@ const AdminDashboard = () => {
             </div>
             <div>
               <p className="text-gray-500 dark:text-gray-300">Utilisateurs</p>
-              <p className="text-3xl font-bold dark:text-white">1,234</p>
+              <p className="text-3xl font-bold dark:text-white">150</p>
             </div>
           </div>
         </div>
@@ -36,7 +36,7 @@ const AdminDashboard = () => {
             </div>
             <div>
               <p className="text-gray-500 dark:text-gray-300">Exercices Actifs</p>
-              <p className="text-3xl font-bold dark:text-white">89</p>
+              <p className="text-3xl font-bold dark:text-white">21</p>
             </div>
           </div>
         </div>
@@ -48,7 +48,7 @@ const AdminDashboard = () => {
             </div>
             <div>
               <p className="text-gray-500 dark:text-gray-300">Stockage Utilisé</p>
-              <p className="text-3xl font-bold dark:text-white">64%</p>
+              <p className="text-3xl font-bold dark:text-white">27%</p>
             </div>
           </div>
         </div>

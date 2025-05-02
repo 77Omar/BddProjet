@@ -133,6 +133,20 @@ export const deleteExercice = async (id) => {
     throw error;
   }
 };
+export const deleteUser = async (id) => {
+  try {
+    const response = await api.delete(`/api/users/${id}/`);
+    
+    if (response.status === 204) {
+      // Suppression réussie
+      return true;
+    }
+    throw new Error('Erreur lors de la suppression');
+  } catch (error) {
+    console.error("Erreur:", error.response?.data || error.message);
+    throw error;
+  }
+};
 
 
 export const getCurrentUser = async () => {

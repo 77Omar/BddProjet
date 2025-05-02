@@ -86,7 +86,7 @@ Aucun mot en dehors de ce format.
 
 """
 
-def corriger_exercice2(texte_exercice):
+def corriger_exercice22(texte_exercice):
     prompt = f"""
 SYSTÈME: Vous êtes un professeur de bases de données. Vous devez fournir UNIQUEMENT les corrections techniques des questions ci-dessous.
 
@@ -143,7 +143,7 @@ Le non-respect du format entraînera la suppression automatique de la réponse.
 
 
 
-def corriger_exercice22(texte_exercice):
+def corriger_exercice2(texte_exercice):
     prompt = f"""
 SYSTÈME: Vous êtes un professeur de bases de données. Vous devez fournir UNIQUEMENT les corrections techniques des questions ci-dessous.
 

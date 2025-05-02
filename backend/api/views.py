@@ -21,6 +21,26 @@ from .models import Exercice
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.db.models import Q
 
+# api/views.py
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from django.db.models import Count, Avg
+from .models import User, Exercice, Correction
+
+class PerformanceDashboardView(APIView):
+    def get(self, request):
+        data = {
+            "user_count": User.objects.count(),
+            "exercice_count": Exercice.objects.count(),
+            "avg_correction_time": Correction.objects.aggregate(
+                avg_time=Avg('temps_correction')
+            )['avg_time'],
+            "success_rate": Correction.objects.filter(
+                note__gte=10
+            ).count() / Correction.objects.count() * 100 if Correction.objects.count() > 0 else 0
+        }
+        return Response(data)
+
 User = get_user_model()
 
 def get_tokens_for_user(user):
@@ -85,7 +105,7 @@ def logout_view(request):
 """
 
 """
-class UserViewSet(viewsets.ReadOnlyModelViewSet):  # ReadOnly pour la sécurité
+class UserViewSet(viewsets.ModelViewSet):  # ReadOnly pour la sécurité
     queryset = User.objects.all()
     serializer_class = UserSerializer
     #permission_classes = [permissions.IsAdminUser] 

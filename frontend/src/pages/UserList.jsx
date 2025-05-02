@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { FiEdit, FiTrash2, FiUserPlus, FiUser } from 'react-icons/fi';
 import api from '../api';
-import UserModal from '../pages/UserModal';
-import DeleteConfirmation from '../pages/DeleteConfirmation';
+import UserModal from './UserModal';
+import DeleteConfirmation from './DeleteConfirmation';
 import Layout from '../components/Layout';
 
 const UserList = () => {
@@ -65,7 +65,7 @@ const UserList = () => {
 
     return (
     <Layout>
-    <div className="space-y-6 p-4">
+        <div className="space-y-6 p-4">
 
         <div className="p-6 bg-gray-50 min-h-screen">
             <div className="max-w-7xl mx-auto">
