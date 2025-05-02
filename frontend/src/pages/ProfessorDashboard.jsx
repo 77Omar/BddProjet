@@ -10,9 +10,7 @@ const ProfessorDashboard = () =>{
         <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
           👨🏫 Tableau de Bord Professeur
         </h1>
-        <button className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-6 py-3 rounded-lg hover:scale-105 transition-transform">
-          + Nouvel Exercice
-        </button>
+       
       </header>
   
       {/* Cartes Statistiques */}
