@@ -26,6 +26,8 @@ import DashboardAdminPage from './pages/DashboardAdminPage';
 import DashboardEtudiantPage from './pages/DashboardEtudiantPage';
 import DashboardProfPage from './pages/DashboardProfPage';
 import ListCorrectionPage from './pages/ListCorrectionPage';
+import UserList from './pages/UserList';
+
 function Logout() {
   localStorage.clear();
   return <Navigate to="/login" />;
@@ -133,7 +135,7 @@ function App() {
               <>
               <Route path="/dashboardAdmin" element={<DashboardAdminPage />} />
                <Route path="/utilisateurs" element={<UsersPage />} />
-
+               <Route path="/api/users" element={<UserList />} />
               </>
             )
 

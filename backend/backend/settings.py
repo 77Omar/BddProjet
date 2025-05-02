@@ -112,13 +112,14 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
       'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'projetdb', 
-        'USER': 'etudiant',  
-        'PASSWORD': 'passer123',  
+        'NAME': 'projetBDD', 
+        'USER': 'oumar',  
+        'PASSWORD': 'root1234',  
         'HOST': 'localhost', 
         'PORT': '3306',  
     }
 }
+
 
 
 # Password validation
@@ -168,6 +169,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
     "http://localhost:5173",
     "http://127.0.0.1:5173",
 ] """
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",    
+    "http://127.0.0.1:5173",  
+]
+
 
 CORS_ALLOW_ALL_ORIGINS = True 
 

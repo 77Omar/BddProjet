@@ -17,7 +17,7 @@ const Layout = ({ children }) => {
   }, []);
 
   return (
-    <div className="flex h-screen bg-gray-100">
+   <div className="flex min-h-screen bg-gray-100">   
       {/* ✅ Sidebar pour Desktop */}
       <div className="hidden md:flex md:w-64 fixed inset-y-0 left-0 bg-blue-800">
         <Sidebar onClose={() => setSidebarOpen(false)} />
@@ -41,7 +41,7 @@ const Layout = ({ children }) => {
       <div className="flex flex-col flex-1 md:ml-64">
         <Navbar onMenuClick={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />
 
-        <main className="flex-1 overflow-y-auto p-6 bg-gray-50">
+        <main className="flex-1 p-6 bg-gray-50">
           {children}
         </main>
       </div>

@@ -1,9 +1,7 @@
-import logging
-import threading
 from venv import logger
 from rest_framework import viewsets, permissions
-from .serializers import CorrectionAutoSerializer, CorrectionSerializer, UserSerializer, ExerciceSerializer
-from .models import CorrectionAuto, User, Exercice, Correction
+from .serializers import CorrectionSerializer, UserSerializer, ExerciceSerializer
+from .models import User, Exercice, Correction
 from django.contrib.auth import get_user_model
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -11,7 +9,7 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import RegisterSerializer, UserSerializer
 from rest_framework.views import APIView
-from .ai import corriger_exercice,corriger_exercice2
+from .ai import corriger_exercice
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.permissions import AllowAny
@@ -19,7 +17,30 @@ import fitz  # PyMuPDF
 from django.http import FileResponse
 from .models import Exercice
 from rest_framework_simplejwt.views import TokenObtainPairView
-from django.db.models import Q
+from django.db.models import Avg
+from django.views.decorators.cache import never_cache
+from django.utils import timezone
+from django.db.models import Avg, F
+from rest_framework import generics
+
+
+#create your views here
+class CreateUserView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    #permission_classes = [AllowAny]
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+    #permission_classes = [AllowAny]
+    
+    def perform_create(self, serializer):
+        user = serializer.save()
+        user.set_password(self.request.data.get('password'))
+        user.save()    
+
 
 User = get_user_model()
 
@@ -27,9 +48,6 @@ def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
     return {'refresh': str(refresh), 'access': str(refresh.access_token)}
 
-
-"""
-"""
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
@@ -40,13 +58,14 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             try:
                 user = User.objects.get(username=username)
                 response.data["role"] = user.role
-                response.data["user_id"] = user.id 
+                response.data["user_id"] = user.id  # Optionnel pour le frontend
             except User.DoesNotExist:
                 return Response(
                     {"error": "Utilisateur non trouvé"},
                     status=status.HTTP_400_BAD_REQUEST
                 )
         return response
+
 """
 
 """
@@ -85,7 +104,7 @@ def logout_view(request):
 """
 
 """
-class UserViewSet(viewsets.ReadOnlyModelViewSet):  # ReadOnly pour la sécurité
+class UserViewSet(viewsets.ModelViewSet):  # ReadOnly pour la sécurité
     queryset = User.objects.all()
     serializer_class = UserSerializer
     #permission_classes = [permissions.IsAdminUser] 
@@ -100,42 +119,11 @@ class CurrentUserView(APIView):
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
 """
-class ExerciceViewSet(viewsets.ModelViewSet):
-    queryset = Exercice.objects.all()
-    serializer_class = ExerciceSerializer
-    #permission_classes = [permissions.IsAuthenticated] 
 """
-
-
-""" class ExerciceViewSet(viewsets.ModelViewSet):
-    queryset = Exercice.objects.all()
-    serializer_class = ExerciceSerializer
-
-    
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context['request'] = self.request
-        return context 
-     """
-
 class ExerciceViewSet(viewsets.ModelViewSet):
     queryset = Exercice.objects.all()
     serializer_class = ExerciceSerializer
-
-    def perform_create(self, serializer):
-        # Sauvegarde d'abord l'exercice
-        exercice = serializer.save()
-        
-        # Lance la correction auto en arrière-plan
-        threading.Thread(
-            target=correction_auto_task,
-            args=(exercice.id,)
-        ).start()
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context['request'] = self.request
-        return context
+    #permission_classes = [permissions.IsAuthenticated]  
 """
 """
 class CorrectionViewSet(viewsets.ModelViewSet):
@@ -252,7 +240,6 @@ def soumettre_reponse(request):
             {'message': 'Une erreur interne est survenue'},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
-
 #recuperer les correction du user
 """
 class CorrectionListAPIView(APIView):
@@ -280,51 +267,72 @@ class CorrectionListAPIView(APIView):
         
         serializer = CorrectionSerializer(corrections, many=True)
         return Response(serializer.data)
-
-"""
-
-"""
-logger = logging.getLogger(__name__)
-
-def correction_auto_task(exercice_id):
-    try:
-        exercice = Exercice.objects.get(id=exercice_id)
-        
-        # Extraction du texte
-        texte_exercice = extraire_texte_pdf(exercice.fichier)
-        
-        # Correction automatique
-        correction_text = corriger_exercice2(texte_exercice=texte_exercice)
-        
-        # Enregistrement
-        CorrectionAuto.objects.create(
-            exercice=exercice,
-            correction=correction_text,
-            etat=False 
-        )
-        
-        logger.info(f"Correction auto générée pour l'exercice {exercice_id}")
-        
-    except Exception as e:
-        logger.error(f"Erreur dans correction_auto_task: {str(e)}", exc_info=True)
-
-"""
-
-"""
-""" class CorrectionAutoViewSet(viewsets.ModelViewSet):
-    queryset = CorrectionAuto.objects.all()
-    serializer_class = CorrectionAutoSerializer
-    #permission_classes = [permissions.IsAuthenticated]  """
-
     
-class CorrectionAutoViewSet(viewsets.ModelViewSet):
-    queryset = CorrectionAuto.objects.all()
-    serializer_class = CorrectionAutoSerializer
-    permission_classes = [IsAuthenticated]
+
+#dashboard
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@never_cache
+def student_dashboard(request):
+    user = request.user
     
-    def get_queryset(self):
-        
-        return CorrectionAuto.objects.filter(
-            Q(etat=True) |  # Condition 1: etat=True
-            Q(exercice__professeur=self.request.user)  # Condition 2: exercice du prof
-        ).select_related('exercice', 'exercice__professeur')
+    if user.role != 'etudiant':
+        return Response({"error": "Accès réservé aux étudiants"}, status=403)
+    
+    # Get corrections for the student, excluding zero grades
+    corrections = Correction.objects.filter(
+        etudiant=user
+    ).exclude(note=0).select_related('exercice')
+    
+    # Calculate average grade (rounded to 2 decimals)
+    average = corrections.aggregate(
+        avg_note=Avg('note')
+    )['avg_note'] or 0
+    
+    # Get most recent correction
+    last_correction = corrections.order_by('-date').first()
+    
+    # Prepare notes history (sorted by date)
+    notes_history = [
+        {
+            'date': c.date.strftime('%Y-%m-%d'), 
+            'note': c.note, 
+            'exercice': c.exercice.titre,
+            'exercice_id': c.exercice.id
+        }
+        for c in corrections.order_by('date')
+    ]
+    
+    # Get latest 3 feedbacks
+    feedbacks = [
+        {
+            'exercice': c.exercice.titre,
+            'feedback': c.feedback or c.feedback_ia or "Aucun feedback disponible",
+            'note': c.note,
+            'date': c.date.strftime('%Y-%m-%d'),
+            'exercice_id': c.exercice.id
+        }
+        for c in corrections.order_by('-date')[:3]
+    ]
+    
+    response_data = {
+        'average': round(average, 2),
+        'last_correction': {
+            'note': last_correction.note if last_correction else None,
+            'exercice': last_correction.exercice.titre if last_correction else None,
+            'exercice_id': last_correction.exercice.id if last_correction else None,
+            'date': last_correction.date.strftime('%Y-%m-%d') if last_correction else None
+        } if last_correction else None,
+        'notes_history': notes_history,
+        'feedbacks': feedbacks,
+        'timestamp': timezone.now().isoformat()  # Add current timestamp
+    }
+    
+    response = Response(response_data)
+    # Add headers to prevent caching
+    response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = '0'
+    
+    return response

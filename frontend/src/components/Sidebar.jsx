@@ -54,7 +54,8 @@ const Sidebar = ({ onClose }) => {
     if (role == 'admin') {
       additionalItems.push(
         { path: "/dashboardAdmin", name: "Dashboard", icon: "📊" },
-        { path: "/utilisateurs", name: "Utilisateurs", icon: "👥" },
+        //{ path: "/utilisateurs", name: "Utilisateurs", icon: "👥" },
+        { path: "/api/users", name: "Utilisateurs", icon: "👥" },
         { path: "/mes_etudiant", name: "Étudiants", icon: "👨‍🎓" },
         { path: "/performances_des_etudiants", name: "Performance de la classe", icon: "📈" }
       );

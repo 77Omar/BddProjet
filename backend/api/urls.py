@@ -1,16 +1,15 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
+from api.views import CustomTokenObtainPairView
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
     TokenVerifyView
 )
 from .views import (
-    CorrectionAutoViewSet,
     CorrectionListAPIView,
     CorrectionViewSet,
     CurrentUserView,
-    CustomTokenObtainPairView,
     FichierExerciceView,
     UserViewSet,
     register_view,
@@ -19,18 +18,18 @@ from .views import (
     soumettre_reponse,
     FichierReponseView,
 
+    student_dashboard 
+
 )
 
 router = DefaultRouter()
-router.register(r'correctionAuto', CorrectionAutoViewSet)
 router.register(r'exercises', ExerciceViewSet)
 router.register(r'notes', CorrectionViewSet)
 router.register(r'users', UserViewSet)
 
 auth_patterns = [
+    #path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('login/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
-
-   # path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('verify/', TokenVerifyView.as_view(), name='token_verify'),
     path('register/', register_view, name='register'),
@@ -46,4 +45,7 @@ urlpatterns = [
 
     path('api/auth/', include(auth_patterns)),
     path('api/', include(router.urls)),
+
+
+    path('api/student-dashboard/', student_dashboard, name='student-dashboard'),
 ]

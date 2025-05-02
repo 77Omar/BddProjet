@@ -7,6 +7,7 @@ class User(AbstractUser):
     google_id = models.CharField(max_length=255, blank=True, null=True)
     github_id = models.CharField(max_length=255, blank=True, null=True)
     microsoft_id = models.CharField(max_length=255, blank=True, null=True)
+    phone = models.CharField(max_length=15, blank=True, null=True)
     
     groups = models.ManyToManyField(
         'auth.Group',

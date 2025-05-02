@@ -35,6 +35,7 @@ const LoginPage = () => {
       }else if(role=="etudiant"){
         navigate("/dashboardEtu"); 
       }
+      
     } catch (error) {
       setError("Nom d'utilisateur ou mot de passe incorrect.");
     }finally{
